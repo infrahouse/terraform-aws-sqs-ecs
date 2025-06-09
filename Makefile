@@ -40,6 +40,10 @@ lint:  ## Run code style checks
 test:  ## Run tests on the module
 	pytest -xvvs tests
 
+.PHONY: test-manual
+test-manual:  ## Run tests on the module
+	pytest -xvvs --test-role-arn="arn:aws:iam::303467602807:role/sqs-ecs-tester" --keep-after tests/test_module.py
+
 .PHONY: bootstrap
 bootstrap: ## bootstrap the development environment
 	pip install -U "pip ~= 23.1"
