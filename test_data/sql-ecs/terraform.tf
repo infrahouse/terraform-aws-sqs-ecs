@@ -1,5 +1,5 @@
 terraform {
-    required_version = ">= 1.5.0, <= 1.10.5"
+  required_version = ">= 1.5.0, <= 1.10.5"
   //noinspection HILUnresolvedReference
   required_providers {
     aws = {
