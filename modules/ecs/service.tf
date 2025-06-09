@@ -7,7 +7,6 @@ resource "aws_ecs_service" "consumer" {
   lifecycle {
     ignore_changes = [
       desired_count,
-      capacity_provider_strategy # workaround for https://github.com/hashicorp/terraform-provider-aws/issues/39584
     ]
   }
 
