@@ -1,7 +1,7 @@
 resource "aws_ecs_service" "consumer" {
   name            = var.service_name
   cluster         = aws_ecs_cluster.consumer.id
-  desired_count = var.task_min_count
+  desired_count   = var.task_min_count
   task_definition = aws_ecs_task_definition.consumer.arn
 
   lifecycle {
