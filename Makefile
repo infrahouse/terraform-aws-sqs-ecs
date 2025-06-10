@@ -17,6 +17,10 @@ for line in sys.stdin:
 endef
 export PRINT_HELP_PYSCRIPT
 
+TEST_REGION="us-west-2"
+# TEST_ROLE="arn:aws:iam::303467602807:role/sqs-ecs-tester"
+TEST_ROLE="arn:aws:iam::493370826424:role/ih-tf-aws-control-493370826424-admin"
+
 help: install-hooks
 	@python -c "$$PRINT_HELP_PYSCRIPT" < Makefile
 
@@ -40,9 +44,20 @@ lint:  ## Run code style checks
 test:  ## Run tests on the module
 	pytest -xvvs tests
 
-.PHONY: test-manual
-test-manual:  ## Run tests on the module
-	pytest -xvvs --test-role-arn="arn:aws:iam::303467602807:role/sqs-ecs-tester" --keep-after tests/test_module.py
+.PHONY: test-keep
+test-keep:  ## Run a test and keep resources
+	pytest -xvvs \
+		--aws-region=${TEST_REGION} \
+		--test-role-arn=${TEST_ROLE} \
+		--keep-after \
+		tests/test_module.py
+
+.PHONY: test-clean
+test-clean:  ## Run a test and destroy resources
+	pytest -xvvs \
+		--aws-region=${TEST_REGION} \
+		--test-role-arn=${TEST_ROLE} \
+		tests/test_module.py
 
 .PHONY: bootstrap
 bootstrap: ## bootstrap the development environment
