@@ -20,7 +20,7 @@ module "ecs" {
   task_volumes_efs               = var.consumer_task_volumes_efs
   task_volumes_local             = var.consumer_task_volumes_local
   dependencies = {
-    "security_group_inbound_rule": module.asg.security_group_inbound_rule
-    "security_group_outbound_rule": module.asg.security_group_outbound_rule
+    "security_group_inbound_rule" : module.asg.security_group_inbound_rule
+    "security_group_outbound_rule" : module.asg.security_group_outbound_rule
   }
 }

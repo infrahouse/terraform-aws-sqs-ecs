@@ -26,8 +26,8 @@ resource "aws_ecs_service" "consumer" {
       # need these tags for implicit dependency
       execution_role_arn : aws_ecs_task_definition.consumer.execution_role_arn
       # ECS agent needs to be able to connect the ECS to update task status
-      security_group_inbound_rule: var.dependencies["security_group_inbound_rule"]
-      security_group_outbound_rule: var.dependencies["security_group_outbound_rule"]
+      security_group_inbound_rule : var.dependencies["security_group_inbound_rule"]
+      security_group_outbound_rule : var.dependencies["security_group_outbound_rule"]
     },
     local.default_module_tags,
     {
