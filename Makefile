@@ -18,8 +18,7 @@ endef
 export PRINT_HELP_PYSCRIPT
 
 TEST_REGION="us-west-2"
-# TEST_ROLE="arn:aws:iam::303467602807:role/sqs-ecs-tester"
-TEST_ROLE="arn:aws:iam::493370826424:role/ih-tf-aws-control-493370826424-admin"
+TEST_ROLE="arn:aws:iam::303467602807:role/sqs-ecs-tester"
 
 help: install-hooks
 	@python -c "$$PRINT_HELP_PYSCRIPT" < Makefile
