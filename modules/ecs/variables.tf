@@ -28,6 +28,12 @@ variable "container_quota_memory" {
   type        = number
 }
 
+variable "dependencies" {
+  description = "Injected module dependencies. A map of a resource name as a key and a value"
+  type        = map(string)
+  default     = {}
+}
+
 variable "docker_image" {
   description = "A container image that will run the service."
   type        = string
