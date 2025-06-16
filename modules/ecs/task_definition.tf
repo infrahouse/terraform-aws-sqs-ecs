@@ -29,7 +29,7 @@ resource "aws_ecs_task_definition" "consumer" {
             [
               {
                 name : "AWS_DEFAULT_REGION",
-                value : data.aws_region.current
+                value : data.aws_region.current.name
               },
               {
                 name : "SQS_ECS_QUEUE_URL"
