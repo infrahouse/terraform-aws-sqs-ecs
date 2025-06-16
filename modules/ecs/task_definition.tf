@@ -28,8 +28,12 @@ resource "aws_ecs_task_definition" "consumer" {
           environment = concat(
             [
               {
+                name : "AWS_DEFAULT_REGION",
+                value : data.aws_region.current
+              },
+              {
                 name : "SQS_ECS_QUEUE_URL"
-                value : var.queue_url
+                value : data.aws_sqs_queue.current.url
               }
             ],
             var.task_environment_variables

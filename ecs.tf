@@ -10,7 +10,6 @@ module "ecs" {
   container_quota_memory         = var.consumer_task_quota_memory
   docker_image                   = var.consumer_docker_image
   queue_name                     = aws_sqs_queue.queue.name
-  queue_url                      = aws_sqs_queue.queue.url
   service_target_backlog_size    = var.consumer_target_backlog_size
   task_environment_variables     = var.consumer_task_environment_variables
   task_execution_extra_policies  = var.consumer_task_execution_extra_policies
