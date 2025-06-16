@@ -63,11 +63,6 @@ variable "consumer_task_role_extra_policies" {
   type        = map(string)
   default     = {}
 }
-variable "consumer_task_role_arn" {
-  description = "Task Role ARN. The role will be assumed by a container."
-  type        = string
-  default     = null
-}
 
 variable "consumer_task_secrets" {
   description = "Secrets to pass to a container. A `name` will be the environment variable. valueFrom is a secret ARN."

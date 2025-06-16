@@ -98,7 +98,6 @@ module "test" {
 | <a name="input_consumer_task_min_count"></a> [consumer\_task\_min\_count](#input\_consumer\_task\_min\_count) | Minimal number of ECS tasks. By default, calculated from var.consumer\_asg\_min\_size. | `number` | `null` | no |
 | <a name="input_consumer_task_quota_cpu"></a> [consumer\_task\_quota\_cpu](#input\_consumer\_task\_quota\_cpu) | Number of CPU units that a container is going to use. One vCPU is equal to 1024 CPU units. | `number` | `200` | no |
 | <a name="input_consumer_task_quota_memory"></a> [consumer\_task\_quota\_memory](#input\_consumer\_task\_quota\_memory) | Amount of RAM in megabytes the container is going to use. | `number` | `128` | no |
-| <a name="input_consumer_task_role_arn"></a> [consumer\_task\_role\_arn](#input\_consumer\_task\_role\_arn) | Task Role ARN. The role will be assumed by a container. | `string` | `null` | no |
 | <a name="input_consumer_task_role_extra_policies"></a> [consumer\_task\_role\_extra\_policies](#input\_consumer\_task\_role\_extra\_policies) | A map of extra policies attached to the task role. The key is an arbitrary string, the value is the policy ARN. | `map(string)` | `{}` | no |
 | <a name="input_consumer_task_secrets"></a> [consumer\_task\_secrets](#input\_consumer\_task\_secrets) | Secrets to pass to a container. A `name` will be the environment variable. valueFrom is a secret ARN. | <pre>list(<br>    object(<br>      {<br>        name : string<br>        valueFrom : string<br>      }<br>    )<br>  )</pre> | `[]` | no |
 | <a name="input_consumer_task_volumes_efs"></a> [consumer\_task\_volumes\_efs](#input\_consumer\_task\_volumes\_efs) | Map name->{file\_system\_id, container\_path} of EFS volumes defined in task and available for containers to mount. | <pre>map(<br>    object(<br>      {<br>        file_system_id : string<br>        container_path : string<br>      }<br>    )<br>  )</pre> | `{}` | no |
@@ -116,5 +115,5 @@ module "test" {
 |------|-------------|
 | <a name="output_service_arn"></a> [service\_arn](#output\_service\_arn) | Consumer ECS Service ARN |
 | <a name="output_service_name"></a> [service\_name](#output\_service\_name) | Consumer ECS Service name |
-| <a name="output_task_role_arn"></a> [task\_role\_arn](#output\_task\_role\_arn) | ECS task role ARN |
 | <a name="output_task_execution_role_arn"></a> [task\_execution\_role\_arn](#output\_task\_execution\_role\_arn) | ECS task execution role ARN |
+| <a name="output_task_role_arn"></a> [task\_role\_arn](#output\_task\_role\_arn) | ECS task role ARN |
