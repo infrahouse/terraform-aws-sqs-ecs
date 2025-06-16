@@ -7,6 +7,7 @@ resource "aws_ecs_service" "consumer" {
   lifecycle {
     ignore_changes = [
       desired_count,
+      capacity_provider_strategy,
     ]
   }
   force_delete = true
