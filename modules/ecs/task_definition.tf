@@ -25,8 +25,16 @@ resource "aws_ecs_task_definition" "consumer" {
               "awslogs-region" = data.aws_region.current.name
             }
           }
-          environment = var.task_environment_variables
-          secrets     = var.task_secrets
+          environment = concat(
+            [
+              {
+                name : "SQS_ECS_QUEUE_URL"
+                value : var.queue_url
+              }
+            ],
+            var.task_environment_variables
+          )
+          secrets = var.task_secrets
           mountPoints = [
             for name, def in merge(var.task_volumes_efs, var.task_volumes_local) : {
               sourceVolume : name

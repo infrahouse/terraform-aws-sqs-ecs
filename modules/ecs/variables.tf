@@ -49,6 +49,11 @@ variable "queue_name" {
   type        = string
 }
 
+variable "queue_url" {
+  description = "SQS queue URL."
+  type        = string
+}
+
 variable "service_name" {
   description = "A descriptive name for the service that owns the queue."
   type        = string
