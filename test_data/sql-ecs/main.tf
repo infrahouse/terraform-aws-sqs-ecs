@@ -10,4 +10,5 @@ module "test" {
   consumer_docker_image            = "httpd"
   consumer_asg_max_size            = 1
   consumer_asg_min_size            = 1
+  consumer_instance_type           = "t3a.micro"
 }
