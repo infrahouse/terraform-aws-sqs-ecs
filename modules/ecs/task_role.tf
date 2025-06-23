@@ -35,8 +35,9 @@ data "aws_iam_policy_document" "task_role_permissions" {
   }
   statement {
     actions = [
-      "sqs:deletemessage",
-      "sqs:receivemessage",
+      "sqs:DeleteMessage",
+      "sqs:ChangeMessageVisibility",
+      "sqs:ReceiveMessage",
     ]
     resources = [
       data.aws_sqs_queue.current.arn
