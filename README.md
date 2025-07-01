@@ -117,3 +117,6 @@ module "test" {
 | <a name="output_service_name"></a> [service\_name](#output\_service\_name) | Consumer ECS Service name |
 | <a name="output_task_execution_role_arn"></a> [task\_execution\_role\_arn](#output\_task\_execution\_role\_arn) | ECS task execution role ARN |
 | <a name="output_task_role_arn"></a> [task\_role\_arn](#output\_task\_role\_arn) | ECS task role ARN |
+| <a name="output_queue_name"></a> [queue\_name](#output\_queue\_name) | SQS Queue name |
+| <a name="output_queue_url"></a> [queue\_url](#output\_queue\_url) | SQS Queue URL |
+| <a name="output_queue_arn"></a> [queue\_arn](#output\_queue\_arn) | SQS Queue ARN |
