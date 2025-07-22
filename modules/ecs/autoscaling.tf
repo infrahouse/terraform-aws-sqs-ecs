@@ -4,6 +4,8 @@ resource "aws_appautoscaling_target" "ecs_target" {
   resource_id        = "service/${aws_ecs_cluster.consumer.name}/${aws_ecs_service.consumer.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
+
+  depends_on = [aws_ecs_service.consumer]
 }
 
 resource "aws_appautoscaling_policy" "queue_backlog_size" {
