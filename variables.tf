@@ -1,3 +1,8 @@
+variable "alert_notification_email" {
+  description = "Email address to receive alert notifications."
+  type        = string
+}
+
 variable "log_retention_days" {
   description = "Number of days you want to retain log events in a log group."
   type        = number

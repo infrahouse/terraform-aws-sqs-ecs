@@ -38,12 +38,16 @@ module "test" {
   source  = "infrahouse/sqs-ecs/aws"
   version = "0.6.1"
 
-  service_name                     = "sqs-test"                # A descriptive name for the service that owns the SQS queue.
-  consumer_subnet_ids              = var.consumer_subnet_ids   # Where the consumer EC2 instances will be created.
-  consumer_on_demand_base_capacity = 0                         # If specified, the ASG will request spot instances and this will be the minimal number of on-demand instances.
+  service_name                     = "sqs-test"                        # A descriptive name for the service that owns the SQS queue.
+  consumer_subnet_ids              = var.consumer_subnet_ids           # Where the consumer EC2 instances will be created.
+  consumer_on_demand_base_capacity = 0                                 # If specified, the ASG will request spot instances and this will be the minimal number of on-demand instances.
   consumer_docker_image            = "infrahouse/sqs-consumer:latest"  # Docker image to use for the consumer container.
+  alert_notification_email         = "devnull@infrahouse.com"          # Alerts will be sent to this email (required).
 }
 ```
+
+The module will create a CloudWatch alert and SNS topic for notifications. This is to ensure the queue is monitored.
+
 ## Requirements
 
 | Name | Version |
@@ -67,6 +71,9 @@ module "test" {
 
 | Name | Type |
 |------|------|
+| [aws_cloudwatch_metric_alarm.sqs_age_alarm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
+| [aws_sns_topic.sqs_alarms](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic) | resource |
+| [aws_sns_topic_subscription.email_subscription](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription) | resource |
 | [aws_sqs_queue.queue](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_ec2_instance_type.consumer](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ec2_instance_type) | data source |
@@ -77,11 +84,12 @@ module "test" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_alert_notification_email"></a> [alert\_notification\_email](#input\_alert\_notification\_email) | Email address to receive alert notifications. | `string` | n/a | yes |
 | <a name="input_consumer_ami_id"></a> [consumer\_ami\_id](#input\_consumer\_ami\_id) | AMI id for EC2 instances. By default, latest ECS optimized image. | `string` | `null` | no |
 | <a name="input_consumer_asg_max_size"></a> [consumer\_asg\_max\_size](#input\_consumer\_asg\_max\_size) | Minimum number of instances in ASG. By default, calculated from var.consumer\_task\_max\_count. | `number` | `null` | no |
 | <a name="input_consumer_asg_min_size"></a> [consumer\_asg\_min\_size](#input\_consumer\_asg\_min\_size) | Minimum number of instances in ASG. By default, the number of subnets. | `number` | `null` | no |
 | <a name="input_consumer_docker_image"></a> [consumer\_docker\_image](#input\_consumer\_docker\_image) | A container image that will run the consumer application. | `string` | n/a | yes |
-| <a name="input_consumer_extra_files"></a> [consumer\_extra\_files](#input\_consumer\_extra\_files) | Additional files to create on a host EC2 instance. | <pre>list(<br/>    object(<br/>      {<br/>        content     = string<br/>        path        = string<br/>        permissions = string<br/>      }<br/>    )<br/>  )</pre> | `[]` | no |
+| <a name="input_consumer_extra_files"></a> [consumer\_extra\_files](#input\_consumer\_extra\_files) | Additional files to create on a host EC2 instance. | <pre>list(<br>    object(<br>      {<br>        content     = string<br>        path        = string<br>        permissions = string<br>      }<br>    )<br>  )</pre> | `[]` | no |
 | <a name="input_consumer_extra_policies"></a> [consumer\_extra\_policies](#input\_consumer\_extra\_policies) | A map of additional policy ARNs to attach to the consumer instance role. | `map(string)` | `{}` | no |
 | <a name="input_consumer_instance_type"></a> [consumer\_instance\_type](#input\_consumer\_instance\_type) | Consumer EC2 Instance type | `string` | `"t3a.small"` | no |
 | <a name="input_consumer_keypair_name"></a> [consumer\_keypair\_name](#input\_consumer\_keypair\_name) | SSH key pair name that will be added to the consumer instance.By default, create and use a new SSH keypair. | `string` | `null` | no |
@@ -91,7 +99,7 @@ module "test" {
 | <a name="input_consumer_target_backlog_size"></a> [consumer\_target\_backlog\_size](#input\_consumer\_target\_backlog\_size) | Target number of messages in the SQS backlog per task in ECS service. | `number` | `100` | no |
 | <a name="input_consumer_target_cpu_load"></a> [consumer\_target\_cpu\_load](#input\_consumer\_target\_cpu\_load) | Target CPU load for autoscaling. | `number` | `60` | no |
 | <a name="input_consumer_task_commands"></a> [consumer\_task\_commands](#input\_consumer\_task\_commands) | If specified, use this list of strings as a docker command. | `list(string)` | `null` | no |
-| <a name="input_consumer_task_environment_variables"></a> [consumer\_task\_environment\_variables](#input\_consumer\_task\_environment\_variables) | Environment variables passed down to a task. | <pre>list(<br/>    object(<br/>      {<br/>        name : string<br/>        value : string<br/>      }<br/>    )<br/>  )</pre> | `[]` | no |
+| <a name="input_consumer_task_environment_variables"></a> [consumer\_task\_environment\_variables](#input\_consumer\_task\_environment\_variables) | Environment variables passed down to a task. | <pre>list(<br>    object(<br>      {<br>        name : string<br>        value : string<br>      }<br>    )<br>  )</pre> | `[]` | no |
 | <a name="input_consumer_task_execution_extra_policies"></a> [consumer\_task\_execution\_extra\_policies](#input\_consumer\_task\_execution\_extra\_policies) | A map of extra policies attached to the task execution role. The key is an arbitrary string, the value is the policy ARN. | `map(string)` | `{}` | no |
 | <a name="input_consumer_task_healthcheck_command"></a> [consumer\_task\_healthcheck\_command](#input\_consumer\_task\_healthcheck\_command) | A shell command that a container runs to check if it's healthy. Exit code 0 means healthy, non-zero - unhealthy. | `string` | `"exit 0"` | no |
 | <a name="input_consumer_task_max_count"></a> [consumer\_task\_max\_count](#input\_consumer\_task\_max\_count) | Maximum number of ECS tasks. By default, calculated from consumer\_asg\_max\_size. | `number` | `null` | no |
@@ -99,9 +107,9 @@ module "test" {
 | <a name="input_consumer_task_quota_cpu"></a> [consumer\_task\_quota\_cpu](#input\_consumer\_task\_quota\_cpu) | Number of CPU units that a container is going to use. One vCPU is equal to 1024 CPU units. | `number` | `200` | no |
 | <a name="input_consumer_task_quota_memory"></a> [consumer\_task\_quota\_memory](#input\_consumer\_task\_quota\_memory) | Amount of RAM in megabytes the container is going to use. | `number` | `128` | no |
 | <a name="input_consumer_task_role_extra_policies"></a> [consumer\_task\_role\_extra\_policies](#input\_consumer\_task\_role\_extra\_policies) | A map of extra policies attached to the task role. The key is an arbitrary string, the value is the policy ARN. | `map(string)` | `{}` | no |
-| <a name="input_consumer_task_secrets"></a> [consumer\_task\_secrets](#input\_consumer\_task\_secrets) | Secrets to pass to a container. A `name` will be the environment variable. valueFrom is a secret ARN. | <pre>list(<br/>    object(<br/>      {<br/>        name : string<br/>        valueFrom : string<br/>      }<br/>    )<br/>  )</pre> | `[]` | no |
-| <a name="input_consumer_task_volumes_efs"></a> [consumer\_task\_volumes\_efs](#input\_consumer\_task\_volumes\_efs) | Map name->{file\_system\_id, container\_path} of EFS volumes defined in task and available for containers to mount. | <pre>map(<br/>    object(<br/>      {<br/>        file_system_id : string<br/>        container_path : string<br/>      }<br/>    )<br/>  )</pre> | `{}` | no |
-| <a name="input_consumer_task_volumes_local"></a> [consumer\_task\_volumes\_local](#input\_consumer\_task\_volumes\_local) | Map name->{host\_path, container\_path} of local volumes defined in task and available for containers to mount. | <pre>map(<br/>    object(<br/>      {<br/>        host_path : string<br/>        container_path : string<br/>      }<br/>    )<br/>  )</pre> | `{}` | no |
+| <a name="input_consumer_task_secrets"></a> [consumer\_task\_secrets](#input\_consumer\_task\_secrets) | Secrets to pass to a container. A `name` will be the environment variable. valueFrom is a secret ARN. | <pre>list(<br>    object(<br>      {<br>        name : string<br>        valueFrom : string<br>      }<br>    )<br>  )</pre> | `[]` | no |
+| <a name="input_consumer_task_volumes_efs"></a> [consumer\_task\_volumes\_efs](#input\_consumer\_task\_volumes\_efs) | Map name->{file\_system\_id, container\_path} of EFS volumes defined in task and available for containers to mount. | <pre>map(<br>    object(<br>      {<br>        file_system_id : string<br>        container_path : string<br>      }<br>    )<br>  )</pre> | `{}` | no |
+| <a name="input_consumer_task_volumes_local"></a> [consumer\_task\_volumes\_local](#input\_consumer\_task\_volumes\_local) | Map name->{host\_path, container\_path} of local volumes defined in task and available for containers to mount. | <pre>map(<br>    object(<br>      {<br>        host_path : string<br>        container_path : string<br>      }<br>    )<br>  )</pre> | `{}` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment name string. | `string` | `"development"` | no |
 | <a name="input_fifo_queue"></a> [fifo\_queue](#input\_fifo\_queue) | If true, the queue supports FIFO queue behavior. | `bool` | `false` | no |
 | <a name="input_log_retention_days"></a> [log\_retention\_days](#input\_log\_retention\_days) | Number of days you want to retain log events in a log group. | `number` | `365` | no |
