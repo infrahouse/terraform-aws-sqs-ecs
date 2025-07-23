@@ -36,7 +36,7 @@ To utilize this module in your Terraform repository, you can call it as follows:
 ```hcl
 module "test" {
   source  = "infrahouse/sqs-ecs/aws"
-  version = "0.6.1"
+  version = "1.0.0"
 
   service_name                     = "sqs-test"                        # A descriptive name for the service that owns the SQS queue.
   consumer_subnet_ids              = var.consumer_subnet_ids           # Where the consumer EC2 instances will be created.
