@@ -13,7 +13,7 @@ resource "aws_ecs_service" "consumer" {
   force_delete = true
 
   ordered_placement_strategy {
-    type = "binpack"
+    type  = "binpack"
     field = "memory"
   }
 
