@@ -12,6 +12,11 @@ resource "aws_ecs_service" "consumer" {
   }
   force_delete = true
 
+  ordered_placement_strategy {
+    type  = "binpack"
+    field = "memory"
+  }
+
   deployment_circuit_breaker {
     enable   = true
     rollback = true
