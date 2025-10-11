@@ -11,10 +11,7 @@ from tests.conftest import (
 
 
 def test_module(
-    service_network,
-    test_role_arn,
-    keep_after,
-    aws_region,
+    service_network, test_role_arn, keep_after, aws_region, cleanup_ecs_task_definitions
 ):
     subnet_private_ids = service_network["subnet_private_ids"]["value"]
 
@@ -43,3 +40,4 @@ def test_module(
         json_output=True,
     ) as tf_output:
         LOG.info("%s", json.dumps(tf_output, indent=4))
+        cleanup_ecs_task_definitions(tf_output["service_name"]["value"])
