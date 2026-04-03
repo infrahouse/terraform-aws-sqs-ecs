@@ -7,7 +7,7 @@ Minimal configuration with default settings:
 ```hcl
 module "sqs_consumer" {
   source  = "registry.infrahouse.com/infrahouse/sqs-ecs/aws"
-  version = "1.0.1"
+  version = "2.0.0"
 
   service_name             = "order-processor"
   consumer_subnet_ids      = var.private_subnet_ids
@@ -23,7 +23,7 @@ Use spot instances for cost savings with one on-demand instance as a baseline:
 ```hcl
 module "sqs_consumer" {
   source  = "registry.infrahouse.com/infrahouse/sqs-ecs/aws"
-  version = "1.0.1"
+  version = "2.0.0"
 
   service_name                     = "batch-processor"
   consumer_subnet_ids              = var.private_subnet_ids
@@ -40,7 +40,7 @@ Larger instances with more tasks for high message volume:
 ```hcl
 module "sqs_consumer" {
   source  = "registry.infrahouse.com/infrahouse/sqs-ecs/aws"
-  version = "1.0.1"
+  version = "2.0.0"
 
   service_name             = "event-processor"
   consumer_subnet_ids      = var.private_subnet_ids
@@ -63,7 +63,7 @@ Pass secrets from AWS Secrets Manager to the container:
 ```hcl
 module "sqs_consumer" {
   source  = "registry.infrahouse.com/infrahouse/sqs-ecs/aws"
-  version = "1.0.1"
+  version = "2.0.0"
 
   service_name             = "api-consumer"
   consumer_subnet_ids      = var.private_subnet_ids
@@ -94,7 +94,7 @@ Mount an EFS filesystem for shared storage:
 ```hcl
 module "sqs_consumer" {
   source  = "registry.infrahouse.com/infrahouse/sqs-ecs/aws"
-  version = "1.0.1"
+  version = "2.0.0"
 
   service_name             = "file-processor"
   consumer_subnet_ids      = var.private_subnet_ids
@@ -117,7 +117,7 @@ Process messages in order with a FIFO queue:
 ```hcl
 module "sqs_consumer" {
   source  = "registry.infrahouse.com/infrahouse/sqs-ecs/aws"
-  version = "1.0.1"
+  version = "2.0.0"
 
   service_name             = "ordered-processor"
   consumer_subnet_ids      = var.private_subnet_ids
@@ -134,7 +134,7 @@ Override the container's default command:
 ```hcl
 module "sqs_consumer" {
   source  = "registry.infrahouse.com/infrahouse/sqs-ecs/aws"
-  version = "1.0.1"
+  version = "2.0.0"
 
   service_name             = "custom-consumer"
   consumer_subnet_ids      = var.private_subnet_ids
