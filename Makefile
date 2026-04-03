@@ -14,7 +14,7 @@ export PRINT_HELP_PYSCRIPT
 TEST_REGION ?= us-west-2
 TEST_ROLE ?= arn:aws:iam::303467602807:role/sqs-ecs-tester
 TEST_PATH ?= tests/test_module.py
-TEST_FILTER ?=
+TEST_FILTER ?= aws-6
 
 help: install-hooks
 	@python -c "$$PRINT_HELP_PYSCRIPT" < Makefile
