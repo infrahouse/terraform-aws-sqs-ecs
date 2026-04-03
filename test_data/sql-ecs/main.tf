@@ -5,6 +5,7 @@ resource "random_string" "suffix" {
 
 module "test" {
   source                   = "./../../"
+  environment              = "development"
   service_name             = local.service_name
   consumer_subnet_ids      = var.consumer_subnet_ids
   consumer_docker_image    = "httpd"

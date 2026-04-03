@@ -8,6 +8,5 @@ skip-check:
   - CKV_AWS_26  # SNS topic encryption - KMS adds cost, not needed for operational alerts
   - CKV_AWS_97  # EFS transit encryption - controlled by user's EFS configuration
   - CKV_AWS_158 # CloudWatch Log Group KMS encryption - adds cost/complexity for operational logs
-  - CKV_AWS_277 # ICMP ingress from 0.0.0.0/0 - intentional for network diagnostics
 compact: true
 quiet: false
