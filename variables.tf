@@ -198,7 +198,6 @@ variable "consumer_subnet_ids" {
 variable "environment" {
   description = "Environment name string."
   type        = string
-  default     = "development"
 }
 
 variable "fifo_queue" {
@@ -220,5 +219,6 @@ variable "service_name" {
 
 variable "tags" {
   description = "A map of tags to add to resources."
+  type        = map(string)
   default     = {}
 }
