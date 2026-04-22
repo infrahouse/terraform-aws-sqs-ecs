@@ -14,8 +14,8 @@ module "ecs" {
   task_environment_variables     = var.consumer_task_environment_variables
   task_execution_extra_policies  = var.consumer_task_execution_extra_policies
   task_role_extra_policies       = var.consumer_task_role_extra_policies
-  task_max_count                 = local.task_max_count
-  task_min_count                 = local.task_min_count
+  task_max_count                 = module.scaling.task_max_count
+  task_min_count                 = module.scaling.task_min_count
   task_secrets                   = var.consumer_task_secrets
   task_volumes_efs               = var.consumer_task_volumes_efs
   task_volumes_local             = var.consumer_task_volumes_local

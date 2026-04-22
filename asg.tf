@@ -2,8 +2,8 @@ module "asg" {
   source = "./modules/asg"
 
   ami_id                  = var.consumer_ami_id
-  asg_min_size            = local.asg_min_size
-  asg_max_size            = local.asg_max_size
+  asg_min_size            = module.scaling.asg_min_size
+  asg_max_size            = module.scaling.asg_max_size
   environment             = var.environment
   extra_files             = var.consumer_extra_files
   extra_policies          = var.consumer_extra_policies

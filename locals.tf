@@ -24,37 +24,19 @@ locals {
     data.aws_ec2_instance_type.consumer.default_vcpus * 1024
     -local.cloudwatch_agent_container_resources.cpu
   )
+}
 
-  tasks_per_instance = max(
-    1,
-    min(
-      # number of tasks per instance based on memory usage
-      floor(local.instance_memory_available / var.consumer_task_quota_memory),
-      # number of tasks per instance based on CPU usage
-      floor(local.instance_cpu_available / var.consumer_task_quota_cpu)
-    )
-  )
+module "scaling" {
+  source = "./modules/scaling"
 
-  asg_min_size = var.consumer_asg_min_size != null ? var.consumer_asg_min_size : length(var.consumer_subnet_ids)
-  # If consumer_asg_max_size is given - use it
-  # If consumer_asg_max_size is not given and consumer_task_max_count is given - use consumer_task_max_count / tasks_per_instance
-  # If neither is given - use the number of subnets plus one
-  asg_max_size = var.consumer_asg_max_size != null ? (
-    var.consumer_asg_max_size
-    ) : (
-    var.consumer_task_max_count != null ? (
-      ceil(var.consumer_task_max_count / local.tasks_per_instance)
-    ) : length(var.consumer_subnet_ids) + 1
-  )
+  instance_memory_available_mib = local.instance_memory_available
+  instance_cpu_available_units  = local.instance_cpu_available
+  task_quota_cpu                = var.consumer_task_quota_cpu
+  task_quota_memory             = var.consumer_task_quota_memory
+  subnet_count                  = length(var.consumer_subnet_ids)
 
-  task_min_count = var.consumer_task_min_count != null ? (
-    var.consumer_task_min_count
-    ) : (
-    ceil(local.asg_min_size / local.tasks_per_instance)
-  )
-  task_max_count = var.consumer_task_max_count != null ? (
-    var.consumer_task_max_count
-    ) : (
-    ceil(local.asg_max_size / local.tasks_per_instance)
-  )
+  consumer_asg_min_size   = var.consumer_asg_min_size
+  consumer_asg_max_size   = var.consumer_asg_max_size
+  consumer_task_min_count = var.consumer_task_min_count
+  consumer_task_max_count = var.consumer_task_max_count
 }

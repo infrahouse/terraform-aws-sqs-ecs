@@ -42,8 +42,13 @@ lint:  ## Run code style checks
 	black --check tests
 	terraform fmt -check -recursive
 
+.PHONY: test-math
+test-math:  ## Run offline math tests for modules/scaling via `terraform test`
+	terraform init -backend=false -input=false
+	terraform test
+
 .PHONY: test
-test:  ## Run tests on the module
+test: test-math  ## Run tests on the module
 	pytest -xvvs tests
 
 .PHONY: test-keep
