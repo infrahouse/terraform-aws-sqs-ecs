@@ -15,19 +15,23 @@ locals {
   }
   host_memory_reserved = 1024 # Allocate 1024 MB of memory for host operating system
 
-  tasks_per_instance = min(
+  instance_memory_available = (
+    data.aws_ec2_instance_type.consumer.memory_size
+    -local.host_memory_reserved
+    -local.cloudwatch_agent_container_resources.memory
+  )
+  instance_cpu_available = (
+    data.aws_ec2_instance_type.consumer.default_vcpus * 1024
+    -local.cloudwatch_agent_container_resources.cpu
+  )
+
+  tasks_per_instance = max(
     1,
-    # number of tasks per instance based on memory usage
-    ceil(
-      (
-        data.aws_ec2_instance_type.consumer.memory_size - local.host_memory_reserved - local.cloudwatch_agent_container_resources.memory
-      ) / var.consumer_task_quota_memory
-    ),
-    # number of tasks per instance based on CPU usage
-    ceil(
-      (
-        data.aws_ec2_instance_type.consumer.default_vcpus * 1024 - local.cloudwatch_agent_container_resources.cpu
-      ) / var.consumer_task_quota_cpu
+    min(
+      # number of tasks per instance based on memory usage
+      floor(local.instance_memory_available / var.consumer_task_quota_memory),
+      # number of tasks per instance based on CPU usage
+      floor(local.instance_cpu_available / var.consumer_task_quota_cpu)
     )
   )
 

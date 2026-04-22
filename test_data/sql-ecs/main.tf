@@ -11,6 +11,6 @@ module "test" {
   consumer_docker_image    = "httpd"
   consumer_asg_max_size    = 1
   consumer_asg_min_size    = 1
-  consumer_instance_type   = "t3a.micro"
+  consumer_instance_type   = "t3a.small"
   alert_notification_email = "devnull@infrahouse.com"
 }
