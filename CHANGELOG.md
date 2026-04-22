@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.1] - 2026-04-22
+
+### Bug Fixes
+
+- Correct tasks_per_instance calculation and validate instance sizing
+
+### Miscellaneous Tasks
+
+- Bump test deps and drop .terraform-version
+- Drop .terraform-version CI plumbing, align AGENTS.md with CLAUDE.md
+
+### Refactor
+
+- Extract scaling math into submodule and add offline tests
+
 ## [2.0.0] - 2026-04-03
 
 ### Bug Fixes
