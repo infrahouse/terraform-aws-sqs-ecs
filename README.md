@@ -79,7 +79,7 @@ Full documentation is available at [infrahouse.github.io/terraform-aws-sqs-ecs](
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.62, < 7 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.41.0 |
 
 ## Modules
 
@@ -87,6 +87,7 @@ Full documentation is available at [infrahouse.github.io/terraform-aws-sqs-ecs](
 |------|--------|---------|
 | <a name="module_asg"></a> [asg](#module\_asg) | ./modules/asg | n/a |
 | <a name="module_ecs"></a> [ecs](#module\_ecs) | ./modules/ecs | n/a |
+| <a name="module_scaling"></a> [scaling](#module\_scaling) | ./modules/scaling | n/a |
 
 ## Resources
 
