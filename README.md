@@ -47,7 +47,7 @@ The module is similar to [terraform-aws-sqs-pod](https://github.com/infrahouse/t
 ```hcl
 module "sqs_consumer" {
   source  = "registry.infrahouse.com/infrahouse/sqs-ecs/aws"
-  version = "2.0.0"
+  version = "2.0.1"
 
   service_name                     = "my-consumer"
   consumer_subnet_ids              = var.private_subnet_ids
