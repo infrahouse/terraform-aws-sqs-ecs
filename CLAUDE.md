@@ -70,8 +70,7 @@ Bumping creates a git commit and tag automatically.
 ## CI/CD
 
 - **CI** (`.github/workflows/terraform-CI.yml`): On PRs, runs `make lint`
-  and `make test` against the test AWS account. Terraform version is read
-  from `test_data/sql-ecs/.terraform-version`.
+  and `make test` against the test AWS account.
 - **CD** (`.github/workflows/terraform-CD.yml`): On tag push, publishes
   the module to the InfraHouse registry via `ih-registry upload`.
 
