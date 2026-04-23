@@ -222,3 +222,68 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "enable_cloudwatch_logs" {
+  description = <<-EOT
+    Deploy a CloudWatch agent daemon on every EC2 instance in this cluster.
+    Tails host log files (/var/log/messages, /var/log/dmesg) into CloudWatch log groups.
+
+    Does not affect container stdout/stderr, which is always shipped via the Docker
+    awslogs driver configured on the task definition.
+  EOT
+  type        = bool
+  default     = true
+}
+
+variable "cloudwatch_agent_image" {
+  description = "CloudWatch agent container image."
+  type        = string
+  default     = "amazon/cloudwatch-agent:latest"
+}
+
+variable "enable_vector_agent" {
+  description = <<-EOT
+    Deploy a Vector Agent daemon on every EC2 instance in this cluster.
+    Collects container logs (via Docker socket) and host metrics, forwards to a
+    Vector Aggregator. Requires vector_aggregator_endpoint or vector_agent_config.
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "vector_agent_image" {
+  description = "Vector Agent container image."
+  type        = string
+  default     = "timberio/vector:0.43.1-alpine"
+}
+
+variable "vector_aggregator_endpoint" {
+  description = <<-EOT
+    Vector Aggregator address (host:port) for the agent to forward data to.
+    Used by the default config template. Ignored if vector_agent_config is set.
+
+    Example: "vector-aggregator.sandbox.tinyfish.io:6000"
+  EOT
+  type        = string
+  default     = null
+}
+
+variable "vector_agent_config" {
+  description = <<-EOT
+    Custom Vector Agent config (YAML string). When provided, replaces the
+    built-in default config template entirely.
+  EOT
+  type        = string
+  default     = null
+}
+
+variable "vector_agent_task_policy_arns" {
+  description = <<-EOT
+    List of IAM policy ARNs to attach to the Vector Agent task role.
+    The default config (Docker logs + host metrics forwarded to an aggregator)
+    needs no AWS permissions. Add policies here if your Vector config uses AWS
+    sinks (S3, CloudWatch, Kinesis, etc.).
+  EOT
+  type        = list(string)
+  default     = []
+}

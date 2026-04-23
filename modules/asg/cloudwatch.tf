@@ -1,4 +1,5 @@
 resource "aws_cloudwatch_log_group" "ecs_ec2_syslog" {
+  count             = var.enable_cloudwatch_logs ? 1 : 0
   name              = "${local.cloudwatch_log_group_prefix}-syslog"
   retention_in_days = var.cloudwatch_log_group_retention
   tags = merge(
@@ -11,6 +12,7 @@ resource "aws_cloudwatch_log_group" "ecs_ec2_syslog" {
 }
 
 resource "aws_cloudwatch_log_group" "ecs_ec2_dmesg" {
+  count             = var.enable_cloudwatch_logs ? 1 : 0
   name              = "${local.cloudwatch_log_group_prefix}-dmesg"
   retention_in_days = var.cloudwatch_log_group_retention
   tags = merge(

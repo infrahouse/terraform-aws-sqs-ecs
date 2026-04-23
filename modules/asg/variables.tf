@@ -4,6 +4,40 @@ variable "ami_id" {
   default     = null
 }
 
+variable "enable_cloudwatch_logs" {
+  description = "Write the CloudWatch agent config to hosts and create syslog/dmesg log groups."
+  type        = bool
+  default     = true
+}
+
+variable "enable_vector_agent" {
+  description = "Write the Vector Agent config to hosts."
+  type        = bool
+  default     = false
+}
+
+variable "cloudwatch_agent_config_path" {
+  description = "Host path where the CloudWatch agent config is written."
+  type        = string
+}
+
+variable "vector_agent_config_path" {
+  description = "Host path where the Vector Agent config is written."
+  type        = string
+}
+
+variable "vector_aggregator_endpoint" {
+  description = "Vector Aggregator address (host:port). Used by the default config template."
+  type        = string
+  default     = null
+}
+
+variable "vector_agent_config" {
+  description = "Custom Vector Agent config (YAML string). Overrides the default template."
+  type        = string
+  default     = null
+}
+
 variable "asg_min_size" {
   description = "Minimum number of instances in ASG. By default, the number of subnets."
   type        = number

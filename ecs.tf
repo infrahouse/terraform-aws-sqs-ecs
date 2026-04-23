@@ -1,5 +1,9 @@
 module "ecs" {
   source                         = "./modules/ecs"
+  cloudwatch_agent_config_path   = local.cloudwatch_agent_config_path
+  cloudwatch_agent_image         = var.cloudwatch_agent_image
+  enable_cloudwatch_logs         = var.enable_cloudwatch_logs
+  enable_vector_agent            = var.enable_vector_agent
   environment                    = var.environment
   service_name                   = var.service_name
   asg_arn                        = module.asg.asg_arn
@@ -19,6 +23,11 @@ module "ecs" {
   task_secrets                   = var.consumer_task_secrets
   task_volumes_efs               = var.consumer_task_volumes_efs
   task_volumes_local             = var.consumer_task_volumes_local
+  vector_agent_config            = var.vector_agent_config
+  vector_agent_config_path       = local.vector_agent_config_path
+  vector_agent_image             = var.vector_agent_image
+  vector_agent_task_policy_arns  = var.vector_agent_task_policy_arns
+  vector_aggregator_endpoint     = var.vector_aggregator_endpoint
   dependencies = {
     "security_group_inbound_rule" : module.asg.security_group_inbound_rule
     "security_group_outbound_rule" : module.asg.security_group_outbound_rule

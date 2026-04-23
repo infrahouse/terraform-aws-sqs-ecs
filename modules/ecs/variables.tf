@@ -3,6 +3,51 @@ variable "asg_arn" {
   type        = string
 }
 
+variable "enable_cloudwatch_logs" {
+  description = "Deploy the CloudWatch agent as a DAEMON ECS service."
+  type        = bool
+}
+
+variable "cloudwatch_agent_image" {
+  description = "CloudWatch agent container image."
+  type        = string
+}
+
+variable "cloudwatch_agent_config_path" {
+  description = "Host path where the CloudWatch agent config is mounted from."
+  type        = string
+}
+
+variable "enable_vector_agent" {
+  description = "Deploy the Vector Agent as a DAEMON ECS service."
+  type        = bool
+}
+
+variable "vector_agent_image" {
+  description = "Vector Agent container image."
+  type        = string
+}
+
+variable "vector_agent_config_path" {
+  description = "Host path where the Vector Agent config is mounted from."
+  type        = string
+}
+
+variable "vector_aggregator_endpoint" {
+  description = "Vector Aggregator endpoint. Required when enable_vector_agent is true and vector_agent_config is null."
+  type        = string
+}
+
+variable "vector_agent_config" {
+  description = "Custom Vector Agent config. When non-null, vector_aggregator_endpoint is not required."
+  type        = string
+}
+
+variable "vector_agent_task_policy_arns" {
+  description = "IAM policy ARNs to attach to the Vector Agent task role."
+  type        = list(string)
+}
+
 variable "cloudwatch_log_group_retention" {
   description = "Number of days you want to retain log events in the log group."
   type        = number
