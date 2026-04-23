@@ -48,6 +48,7 @@ resource "aws_iam_role_policy_attachment" "cloudwatch_agent_execution_policy" {
 }
 
 resource "aws_ecs_task_definition" "cloudwatch_agent" {
+  # checkov:skip=CKV_AWS_336: Agent needs a writable /opt/aws/amazon-cloudwatch-agent/var/ for file-tail offsets. Proper fix tracked in follow-up issue.
   count              = var.enable_cloudwatch_logs ? 1 : 0
   family             = format("%s-cw-agent-daemon", var.service_name)
   task_role_arn      = aws_iam_role.cloudwatch_agent_task_role[0].arn
