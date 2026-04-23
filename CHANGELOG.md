@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.0] - 2026-04-23
+
+### Features
+
+- Add enable_vector_agent support and ops dashboard
+
+### Miscellaneous Tasks
+
+- Skip CKV_AWS_336 on agent task defs with rationale
+
 ## [2.0.1] - 2026-04-22
 
 ### Bug Fixes

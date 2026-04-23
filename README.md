@@ -93,6 +93,7 @@ Full documentation is available at [infrahouse.github.io/terraform-aws-sqs-ecs](
 
 | Name | Type |
 |------|------|
+| [aws_cloudwatch_dashboard.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_dashboard) | resource |
 | [aws_cloudwatch_metric_alarm.sqs_age_alarm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
 | [aws_sns_topic.sqs_alarms](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic) | resource |
 | [aws_sns_topic_subscription.email_subscription](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription) | resource |
@@ -107,6 +108,7 @@ Full documentation is available at [infrahouse.github.io/terraform-aws-sqs-ecs](
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_alert_notification_email"></a> [alert\_notification\_email](#input\_alert\_notification\_email) | Email address to receive alert notifications. | `string` | n/a | yes |
+| <a name="input_cloudwatch_agent_image"></a> [cloudwatch\_agent\_image](#input\_cloudwatch\_agent\_image) | CloudWatch agent container image. | `string` | `"amazon/cloudwatch-agent:latest"` | no |
 | <a name="input_consumer_ami_id"></a> [consumer\_ami\_id](#input\_consumer\_ami\_id) | AMI id for EC2 instances. By default, latest ECS optimized image. | `string` | `null` | no |
 | <a name="input_consumer_asg_max_size"></a> [consumer\_asg\_max\_size](#input\_consumer\_asg\_max\_size) | Minimum number of instances in ASG. By default, calculated from var.consumer\_task\_max\_count. | `number` | `null` | no |
 | <a name="input_consumer_asg_min_size"></a> [consumer\_asg\_min\_size](#input\_consumer\_asg\_min\_size) | Minimum number of instances in ASG. By default, the number of subnets. | `number` | `null` | no |
@@ -132,12 +134,18 @@ Full documentation is available at [infrahouse.github.io/terraform-aws-sqs-ecs](
 | <a name="input_consumer_task_secrets"></a> [consumer\_task\_secrets](#input\_consumer\_task\_secrets) | Secrets to pass to a container. A `name` will be the environment variable. valueFrom is a secret ARN. | <pre>list(<br/>    object(<br/>      {<br/>        name : string<br/>        valueFrom : string<br/>      }<br/>    )<br/>  )</pre> | `[]` | no |
 | <a name="input_consumer_task_volumes_efs"></a> [consumer\_task\_volumes\_efs](#input\_consumer\_task\_volumes\_efs) | Map name->{file\_system\_id, container\_path} of EFS volumes defined in task and available for containers to mount. | <pre>map(<br/>    object(<br/>      {<br/>        file_system_id : string<br/>        container_path : string<br/>      }<br/>    )<br/>  )</pre> | `{}` | no |
 | <a name="input_consumer_task_volumes_local"></a> [consumer\_task\_volumes\_local](#input\_consumer\_task\_volumes\_local) | Map name->{host\_path, container\_path} of local volumes defined in task and available for containers to mount. | <pre>map(<br/>    object(<br/>      {<br/>        host_path : string<br/>        container_path : string<br/>      }<br/>    )<br/>  )</pre> | `{}` | no |
+| <a name="input_enable_cloudwatch_logs"></a> [enable\_cloudwatch\_logs](#input\_enable\_cloudwatch\_logs) | Deploy a CloudWatch agent daemon on every EC2 instance in this cluster.<br/>Tails host log files (/var/log/messages, /var/log/dmesg) into CloudWatch log groups.<br/><br/>Does not affect container stdout/stderr, which is always shipped via the Docker<br/>awslogs driver configured on the task definition. | `bool` | `true` | no |
+| <a name="input_enable_vector_agent"></a> [enable\_vector\_agent](#input\_enable\_vector\_agent) | Deploy a Vector Agent daemon on every EC2 instance in this cluster.<br/>Collects container logs (via Docker socket) and host metrics, forwards to a<br/>Vector Aggregator. Requires vector\_aggregator\_endpoint or vector\_agent\_config. | `bool` | `false` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment name string. | `string` | n/a | yes |
 | <a name="input_fifo_queue"></a> [fifo\_queue](#input\_fifo\_queue) | If true, the queue supports FIFO queue behavior. | `bool` | `false` | no |
 | <a name="input_log_retention_days"></a> [log\_retention\_days](#input\_log\_retention\_days) | Number of days you want to retain log events in a log group. | `number` | `365` | no |
 | <a name="input_queue_name"></a> [queue\_name](#input\_queue\_name) | Name of the queue. | `string` | `null` | no |
 | <a name="input_service_name"></a> [service\_name](#input\_service\_name) | A descriptive name for the service that owns the queue. | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to add to resources. | `map(string)` | `{}` | no |
+| <a name="input_vector_agent_config"></a> [vector\_agent\_config](#input\_vector\_agent\_config) | Custom Vector Agent config (YAML string). When provided, replaces the<br/>built-in default config template entirely. | `string` | `null` | no |
+| <a name="input_vector_agent_image"></a> [vector\_agent\_image](#input\_vector\_agent\_image) | Vector Agent container image. | `string` | `"timberio/vector:0.43.1-alpine"` | no |
+| <a name="input_vector_agent_task_policy_arns"></a> [vector\_agent\_task\_policy\_arns](#input\_vector\_agent\_task\_policy\_arns) | List of IAM policy ARNs to attach to the Vector Agent task role.<br/>The default config (Docker logs + host metrics forwarded to an aggregator)<br/>needs no AWS permissions. Add policies here if your Vector config uses AWS<br/>sinks (S3, CloudWatch, Kinesis, etc.). | `list(string)` | `[]` | no |
+| <a name="input_vector_aggregator_endpoint"></a> [vector\_aggregator\_endpoint](#input\_vector\_aggregator\_endpoint) | Vector Aggregator address (host:port) for the agent to forward data to.<br/>Used by the default config template. Ignored if vector\_agent\_config is set.<br/><br/>Example: "vector-aggregator.sandbox.tinyfish.io:6000" | `string` | `null` | no |
 
 ## Outputs
 
