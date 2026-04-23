@@ -37,6 +37,7 @@ resource "aws_iam_role_policy_attachment" "vector_agent_task_policy" {
 }
 
 resource "aws_ecs_task_definition" "vector_agent" {
+  # checkov:skip=CKV_AWS_336: Vector writes checkpoints/buffers to its data dir, which needs a writable FS. Proper fix tracked in follow-up issue.
   count              = var.enable_vector_agent ? 1 : 0
   family             = format("%s-vector-agent-daemon", var.service_name)
   task_role_arn      = aws_iam_role.vector_agent_task_role[0].arn
