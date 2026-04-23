@@ -62,19 +62,35 @@ data "cloudinit_config" "ecs" {
                         "ECS_ALLOW_OFFHOST_INTROSPECTION_ACCESS=true"
                       ]
                     )
-                  },
+                  }
+                ],
+                var.enable_cloudwatch_logs ? [
                   {
-                    path : local.cloudwatch_agent_config_path
+                    path : var.cloudwatch_agent_config_path
                     permissions : "0644"
                     content : templatefile(
                       "${path.module}/assets/cloudwatch_agent_config.tftpl",
                       {
-                        syslog_group_name : aws_cloudwatch_log_group.ecs_ec2_syslog.name
-                        dmesg_group_name : aws_cloudwatch_log_group.ecs_ec2_dmesg.name
+                        syslog_group_name : aws_cloudwatch_log_group.ecs_ec2_syslog[0].name
+                        dmesg_group_name : aws_cloudwatch_log_group.ecs_ec2_dmesg[0].name
                       }
                     )
                   }
-                ],
+                ] : [],
+                var.enable_vector_agent ? [
+                  {
+                    path : var.vector_agent_config_path
+                    permissions : "0644"
+                    content : var.vector_agent_config != null ? var.vector_agent_config : templatefile(
+                      "${path.module}/assets/vector_agent_config.yaml.tftmpl",
+                      {
+                        environment                = var.environment
+                        aws_region                 = data.aws_region.current.name
+                        vector_aggregator_endpoint = var.vector_aggregator_endpoint
+                      }
+                    )
+                  }
+                ] : [],
                 var.extra_files
               )
             },

@@ -8,21 +8,42 @@ locals {
       created_by_module : "infrahouse/sqs-ecs/aws"
     }
   )
-  # This is how much resource the cloudwatch agent consumes
+
+  # Host paths for daemon config files. Written by the ASG submodule via
+  # cloud-init, mounted into the daemon containers by the ECS submodule.
+  cloudwatch_agent_config_path = "/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json"
+  vector_agent_config_path     = "/etc/vector/vector.yaml"
+
+  # Per-daemon resource reservations on every EC2 host. Mirror values in the
+  # infrahouse/ecs/aws reference module so sizing stays consistent.
   cloudwatch_agent_container_resources = {
     cpu    = 128
     memory = 256
   }
-  host_memory_reserved = 1024 # Allocate 1024 MB of memory for host operating system
+  vector_agent_container_resources = {
+    cpu    = 128
+    memory = 256
+  }
+
+  host_memory_reserved = 1024 # Host OS reservation
+
+  daemon_memory_overhead = (
+    (var.enable_cloudwatch_logs ? local.cloudwatch_agent_container_resources.memory : 0) +
+    (var.enable_vector_agent ? local.vector_agent_container_resources.memory : 0)
+  )
+  daemon_cpu_overhead = (
+    (var.enable_cloudwatch_logs ? local.cloudwatch_agent_container_resources.cpu : 0) +
+    (var.enable_vector_agent ? local.vector_agent_container_resources.cpu : 0)
+  )
 
   instance_memory_available = (
     data.aws_ec2_instance_type.consumer.memory_size
     -local.host_memory_reserved
-    -local.cloudwatch_agent_container_resources.memory
+    -local.daemon_memory_overhead
   )
   instance_cpu_available = (
     data.aws_ec2_instance_type.consumer.default_vcpus * 1024
-    -local.cloudwatch_agent_container_resources.cpu
+    -local.daemon_cpu_overhead
   )
 }
 

@@ -54,6 +54,40 @@
 | `consumer_target_cpu_load` | `60` | Target CPU utilization percentage |
 | `consumer_target_backlog_size` | `100` | Target messages per task |
 
+## Observability
+
+Container stdout/stderr is shipped to CloudWatch Logs via the Docker `awslogs`
+driver configured on every task definition — this is always on and not gated
+by any flag.
+
+Two optional DAEMON services can run on every EC2 host to capture additional
+telemetry:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `enable_cloudwatch_logs` | `true` | Run the CloudWatch agent daemon. Tails `/var/log/messages` and `/var/log/dmesg` from the host into dedicated log groups. |
+| `cloudwatch_agent_image` | `amazon/cloudwatch-agent:1.300068.3b1052` | CloudWatch agent container image. |
+| `enable_vector_agent` | `false` | Run the Vector Agent daemon. Reads container logs via the Docker socket and host metrics, forwards to a Vector Aggregator. |
+| `vector_agent_image` | `timberio/vector:0.43.1-alpine` | Vector Agent container image. |
+| `vector_aggregator_endpoint` | `null` | Vector Aggregator address (`host:port`). Required when `enable_vector_agent = true` unless `vector_agent_config` is set. |
+| `vector_agent_config` | `null` | Custom Vector YAML config. When set, replaces the built-in template entirely. |
+| `vector_agent_task_policy_arns` | `[]` | IAM policy ARNs to attach to the Vector task role (only needed if your custom config uses AWS sinks). |
+
+Each enabled daemon reserves 128 CPU units and 256 MiB of memory on every host;
+the ASG sizing math accounts for this automatically.
+
+Turning on `enable_vector_agent` does not turn off `awslogs`, so container logs
+will go to both CloudWatch and the Vector pipeline unless you also change the
+task log driver.
+
+## Dashboard
+
+The module creates one CloudWatch dashboard named `${service_name}-${environment}`
+unconditionally. It shows SQS backlog/age/throughput, ECS service CPU/memory and
+task counts, ASG capacity, ECS capacity provider reservation, and a tail of the
+container stdout log group. When `enable_cloudwatch_logs = true`, it also shows
+host syslog and dmesg.
+
 ## Other
 
 | Variable | Default | Description |
