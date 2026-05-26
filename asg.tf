@@ -23,6 +23,7 @@ module "asg" {
   target_cpu_load            = var.consumer_target_cpu_load
   users                      = {}
   warm_pool                  = var.consumer_warm_pool
+  lifecycle_hook             = var.consumer_lifecycle_hook
   vector_agent_config        = var.vector_agent_config
   vector_agent_config_path   = local.vector_agent_config_path
   vector_aggregator_endpoint = var.vector_aggregator_endpoint

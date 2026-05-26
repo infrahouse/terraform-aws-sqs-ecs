@@ -63,6 +63,16 @@ resource "aws_autoscaling_group" "consumer" {
     }
   }
 
+  dynamic "initial_lifecycle_hook" {
+    for_each = var.lifecycle_hook == null ? [] : [var.lifecycle_hook]
+    content {
+      name                 = initial_lifecycle_hook.value.name
+      lifecycle_transition = initial_lifecycle_hook.value.lifecycle_transition
+      heartbeat_timeout    = initial_lifecycle_hook.value.heartbeat_timeout
+      default_result       = initial_lifecycle_hook.value.default_result
+    }
+  }
+
   tag {
     key                 = "Name"
     propagate_at_launch = true

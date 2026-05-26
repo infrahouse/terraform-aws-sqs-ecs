@@ -206,6 +206,17 @@ variable "consumer_warm_pool" {
   default = null
 }
 
+variable "consumer_lifecycle_hook" {
+  description = "Optional initial lifecycle hook on the consumer ASG. Created with the ASG, so it covers instances launched into a warm pool race-free. Null (default) = none. The hook only pauses the transition; the consumer handles the action (e.g. via EventBridge) and calls complete-lifecycle-action."
+  type = object({
+    name                 = string
+    lifecycle_transition = string
+    heartbeat_timeout    = optional(number, 3600)
+    default_result       = optional(string, "ABANDON")
+  })
+  default = null
+}
+
 variable "environment" {
   description = "Environment name string."
   type        = string
