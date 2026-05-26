@@ -201,7 +201,7 @@ variable "consumer_warm_pool" {
     pool_state                  = optional(string, "Stopped")
     min_size                    = optional(number, 0)
     max_group_prepared_capacity = optional(number, null)
-    reuse_on_scale_in           = optional(bool, true)
+    reuse_on_scale_in           = optional(bool, false) # matches the AWS default
   })
   default = null
 }
