@@ -157,3 +157,19 @@ variable "users" {
   #     )
   #   )
 }
+
+variable "warm_pool" {
+  description = "Optional EC2 warm pool for the ASG. When null (default), no warm pool is created and behavior is unchanged. When set, the ASG keeps a pool of pre-initialized instances to reduce scale-out latency."
+  type = object({
+    pool_state                  = optional(string, "Stopped")
+    min_size                    = optional(number, 0)
+    max_group_prepared_capacity = optional(number, null)
+    reuse_on_scale_in           = optional(bool, true)
+  })
+  default = null
+
+  validation {
+    condition     = var.warm_pool == null ? true : contains(["Stopped", "Running", "Hibernated"], var.warm_pool.pool_state)
+    error_message = "warm_pool.pool_state must be one of: Stopped, Running, Hibernated."
+  }
+}

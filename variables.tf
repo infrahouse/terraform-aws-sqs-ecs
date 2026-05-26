@@ -195,6 +195,17 @@ variable "consumer_subnet_ids" {
   type        = list(string)
 }
 
+variable "consumer_warm_pool" {
+  description = "Optional EC2 warm pool for the consumer ASG. When null (default), no warm pool is created and behavior is unchanged. When set, the ASG keeps a pool of pre-initialized instances to reduce scale-out latency."
+  type = object({
+    pool_state                  = optional(string, "Stopped")
+    min_size                    = optional(number, 0)
+    max_group_prepared_capacity = optional(number, null)
+    reuse_on_scale_in           = optional(bool, true)
+  })
+  default = null
+}
+
 variable "environment" {
   description = "Environment name string."
   type        = string
