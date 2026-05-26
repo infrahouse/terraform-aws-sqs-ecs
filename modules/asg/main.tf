@@ -51,6 +51,28 @@ resource "aws_autoscaling_group" "consumer" {
     }
   }
 
+  dynamic "warm_pool" {
+    for_each = var.warm_pool == null ? [] : [var.warm_pool]
+    content {
+      pool_state                  = warm_pool.value.pool_state
+      min_size                    = warm_pool.value.min_size
+      max_group_prepared_capacity = warm_pool.value.max_group_prepared_capacity
+      instance_reuse_policy {
+        reuse_on_scale_in = warm_pool.value.reuse_on_scale_in
+      }
+    }
+  }
+
+  dynamic "initial_lifecycle_hook" {
+    for_each = var.lifecycle_hook == null ? [] : [var.lifecycle_hook]
+    content {
+      name                 = initial_lifecycle_hook.value.name
+      lifecycle_transition = initial_lifecycle_hook.value.lifecycle_transition
+      heartbeat_timeout    = initial_lifecycle_hook.value.heartbeat_timeout
+      default_result       = initial_lifecycle_hook.value.default_result
+    }
+  }
+
   tag {
     key                 = "Name"
     propagate_at_launch = true

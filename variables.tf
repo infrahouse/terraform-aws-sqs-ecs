@@ -195,6 +195,28 @@ variable "consumer_subnet_ids" {
   type        = list(string)
 }
 
+variable "consumer_warm_pool" {
+  description = "Optional EC2 warm pool for the consumer ASG. When null (default), no warm pool is created and behavior is unchanged. When set, the ASG keeps a pool of pre-initialized instances to reduce scale-out latency."
+  type = object({
+    pool_state                  = optional(string, "Stopped")
+    min_size                    = optional(number, 0)
+    max_group_prepared_capacity = optional(number, null)
+    reuse_on_scale_in           = optional(bool, false) # matches the AWS default
+  })
+  default = null
+}
+
+variable "consumer_lifecycle_hook" {
+  description = "Optional initial lifecycle hook on the consumer ASG. Created with the ASG, so it covers instances launched into a warm pool race-free. Null (default) = none. The hook only pauses the transition; the consumer handles the action (e.g. via EventBridge) and calls complete-lifecycle-action."
+  type = object({
+    name                 = string
+    lifecycle_transition = string
+    heartbeat_timeout    = optional(number, 3600)
+    default_result       = optional(string, "ABANDON")
+  })
+  default = null
+}
+
 variable "environment" {
   description = "Environment name string."
   type        = string
