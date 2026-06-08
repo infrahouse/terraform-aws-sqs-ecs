@@ -8,6 +8,11 @@ output "service_arn" {
   value       = module.ecs.service_arn
 }
 
+output "task_definition_arn" {
+  description = "Consumer ECS task definition ARN"
+  value       = module.ecs.task_definition_arn
+}
+
 output "task_role_arn" {
   description = "ECS task role ARN"
   value       = module.ecs.task_role_arn

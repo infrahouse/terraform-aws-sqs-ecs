@@ -2,7 +2,9 @@ import json
 from os import path as osp, remove
 from shutil import rmtree
 from textwrap import dedent
+from typing import Any
 
+import boto3
 import pytest
 from pytest_infrahouse import terraform_apply
 
@@ -10,6 +12,24 @@ from tests.conftest import (
     LOG,
     TERRAFORM_ROOT_DIR,
 )
+
+
+def _ecs_client(aws_region: str, test_role_arn: str | None) -> Any:
+    session = boto3.Session(region_name=aws_region)
+    if not test_role_arn:
+        return session.client("ecs")
+
+    credentials = session.client("sts").assume_role(
+        RoleArn=test_role_arn,
+        RoleSessionName="sqs-ecs-test-inspect",
+    )["Credentials"]
+    return boto3.client(
+        "ecs",
+        region_name=aws_region,
+        aws_access_key_id=credentials["AccessKeyId"],
+        aws_secret_access_key=credentials["SecretAccessKey"],
+        aws_session_token=credentials["SessionToken"],
+    )
 
 
 @pytest.mark.parametrize("aws_provider_version", ["~> 6.0"], ids=["aws-6"])
@@ -41,6 +61,8 @@ def test_module(
       test validates.
     """
     enable_cloudwatch_logs, enable_vector_agent = daemon_mode
+    expected_memory_reservation = None if enable_vector_agent else 128
+    expected_memory = 128 if expected_memory_reservation is None else 256
     subnet_private_ids = service_network["subnet_private_ids"]["value"]
 
     terraform_module_dir = osp.join(TERRAFORM_ROOT_DIR, "sql-ecs")
@@ -84,6 +106,12 @@ def test_module(
                     enable_cloudwatch_logs     = {str(enable_cloudwatch_logs).lower()}
                     enable_vector_agent        = {str(enable_vector_agent).lower()}
                     """))
+        if expected_memory != 128:
+            fp.write(f"consumer_task_quota_memory = {expected_memory}\n")
+        if expected_memory_reservation is not None:
+            fp.write(
+                f"consumer_task_quota_memory_reservation = {expected_memory_reservation}\n"
+            )
         if enable_vector_agent:
             # Dummy endpoint — satisfies the precondition; runtime connect will fail harmlessly.
             fp.write('vector_aggregator_endpoint = "vector-aggregator.invalid:6000"\n')
@@ -98,4 +126,20 @@ def test_module(
         json_output=True,
     ) as tf_output:
         LOG.info("%s", json.dumps(tf_output, indent=4))
+        ecs = _ecs_client(aws_region, test_role_arn)
+        task_definition = ecs.describe_task_definition(
+            taskDefinition=tf_output["task_definition_arn"]["value"],
+        )["taskDefinition"]
+        container_definition = next(
+            container
+            for container in task_definition["containerDefinitions"]
+            if container["name"] == tf_output["service_name"]["value"]
+        )
+        assert container_definition["memory"] == expected_memory
+        if expected_memory_reservation is None:
+            assert "memoryReservation" not in container_definition
+        else:
+            assert (
+                container_definition["memoryReservation"] == expected_memory_reservation
+            )
         cleanup_ecs_task_definitions(tf_output["service_name"]["value"])
