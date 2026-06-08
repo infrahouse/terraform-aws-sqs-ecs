@@ -12,14 +12,23 @@ resource "aws_sqs_queue" "queue" {
   lifecycle {
     precondition {
       condition = (
-        local.instance_memory_available >= var.consumer_task_quota_memory
+        local.instance_memory_available >= local.consumer_task_placement_memory
         && local.instance_cpu_available >= var.consumer_task_quota_cpu
       )
       error_message = <<-EOT
         consumer_instance_type "${var.consumer_instance_type}" is too small for the requested task quotas.
         Available per instance after host/agent reservations: ${local.instance_memory_available} MiB memory, ${local.instance_cpu_available} CPU units.
-        Task requires: ${var.consumer_task_quota_memory} MiB memory, ${var.consumer_task_quota_cpu} CPU units.
-        Pick a larger consumer_instance_type or reduce consumer_task_quota_cpu / consumer_task_quota_memory.
+        Task requires: ${local.consumer_task_placement_memory} MiB placement memory, ${var.consumer_task_quota_cpu} CPU units.
+        Pick a larger consumer_instance_type or reduce consumer_task_quota_cpu / consumer_task_quota_memory_reservation.
+      EOT
+    }
+    precondition {
+      condition = (
+        var.consumer_task_quota_memory_reservation == null
+        || var.consumer_task_quota_memory_reservation <= var.consumer_task_quota_memory
+      )
+      error_message = <<-EOT
+        consumer_task_quota_memory_reservation must be less than or equal to consumer_task_quota_memory.
       EOT
     }
   }

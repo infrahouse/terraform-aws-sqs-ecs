@@ -13,8 +13,9 @@
   console.
 - **Resource constraints** - Task CPU/memory quotas may exceed
   available instance resources. Verify `consumer_task_quota_cpu` and
-  `consumer_task_quota_memory` fit within the chosen
-  `consumer_instance_type`.
+  `consumer_task_quota_memory_reservation` (or
+  `consumer_task_quota_memory` when no reservation is set) fit within
+  the chosen `consumer_instance_type`.
 - **Image pull failures** - Check the ECS task execution role has
   permission to pull the Docker image. For ECR images, ensure the
   execution role has `ecr:GetDownloadUrlForLayer`,

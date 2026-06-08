@@ -45,6 +45,11 @@ locals {
     data.aws_ec2_instance_type.consumer.default_vcpus * 1024
     -local.daemon_cpu_overhead
   )
+
+  consumer_task_placement_memory = coalesce(
+    var.consumer_task_quota_memory_reservation,
+    var.consumer_task_quota_memory,
+  )
 }
 
 module "scaling" {
@@ -53,7 +58,7 @@ module "scaling" {
   instance_memory_available_mib = local.instance_memory_available
   instance_cpu_available_units  = local.instance_cpu_available
   task_quota_cpu                = var.consumer_task_quota_cpu
-  task_quota_memory             = var.consumer_task_quota_memory
+  task_quota_memory             = local.consumer_task_placement_memory
   subnet_count                  = length(var.consumer_subnet_ids)
 
   consumer_asg_min_size   = var.consumer_asg_min_size

@@ -32,6 +32,8 @@ module "ecs" {
   vector_agent_image             = var.vector_agent_image
   vector_agent_task_policy_arns  = var.vector_agent_task_policy_arns
   vector_aggregator_endpoint     = var.vector_aggregator_endpoint
+
+  container_quota_memory_reservation = var.consumer_task_quota_memory_reservation
   dependencies = {
     "security_group_inbound_rule" : module.asg.security_group_inbound_rule
     "security_group_outbound_rule" : module.asg.security_group_outbound_rule
