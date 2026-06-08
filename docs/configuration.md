@@ -33,7 +33,8 @@
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `consumer_task_quota_cpu` | `200` | CPU units per task (1 vCPU = 1024) |
-| `consumer_task_quota_memory` | `128` | Memory in MB per task |
+| `consumer_task_quota_memory` | `128` | Hard memory limit in MB per task |
+| `consumer_task_quota_memory_reservation` | `null` | Soft memory limit for placement; tasks can burst to the hard limit |
 | `consumer_task_commands` | `null` | Docker command override |
 | `consumer_task_environment_variables` | `[]` | Environment variables for the task |
 | `consumer_task_secrets` | `[]` | Secrets from Secrets Manager |

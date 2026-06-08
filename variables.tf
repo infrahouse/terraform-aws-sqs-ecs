@@ -165,9 +165,27 @@ variable "consumer_task_quota_cpu" {
 }
 
 variable "consumer_task_quota_memory" {
-  description = "Amount of RAM in megabytes the container is going to use."
+  description = "Hard memory limit in megabytes for the consumer container."
   type        = number
   default     = 128
+}
+
+variable "consumer_task_quota_memory_reservation" {
+  description = <<-EOT
+    Soft memory limit in megabytes for the consumer container. ECS uses this
+    value for task placement when set, while the container can use memory up
+    to consumer_task_quota_memory.
+  EOT
+  type        = number
+  default     = null
+
+  validation {
+    condition = (
+      var.consumer_task_quota_memory_reservation == null
+      || var.consumer_task_quota_memory_reservation > 0
+    )
+    error_message = "consumer_task_quota_memory_reservation must be null or greater than 0."
+  }
 }
 
 variable "consumer_task_min_count" {

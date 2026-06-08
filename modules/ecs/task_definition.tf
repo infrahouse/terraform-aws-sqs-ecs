@@ -47,6 +47,9 @@ resource "aws_ecs_task_definition" "consumer" {
           ]
         },
         var.container_commands != null ? { command : var.container_commands } : {},
+        var.container_quota_memory_reservation != null ? {
+          memoryReservation = var.container_quota_memory_reservation
+        } : {},
       )
     ]
   )

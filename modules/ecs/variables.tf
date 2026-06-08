@@ -107,8 +107,14 @@ variable "container_quota_cpu" {
 }
 
 variable "container_quota_memory" {
-  description = "Amount of RAM in megabytes the container is going to use."
+  description = "Hard memory limit in megabytes for the container."
   type        = number
+}
+
+variable "container_quota_memory_reservation" {
+  description = "Soft memory limit in megabytes for the container. If null, no memoryReservation is set."
+  type        = number
+  default     = null
 }
 
 variable "dependencies" {
