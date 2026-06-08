@@ -12,8 +12,8 @@ module "test" {
   consumer_asg_max_size                  = 1
   consumer_asg_min_size                  = 1
   consumer_instance_type                 = "t3a.small"
-  consumer_task_quota_memory             = 256
-  consumer_task_quota_memory_reservation = 128
+  consumer_task_quota_memory             = var.consumer_task_quota_memory
+  consumer_task_quota_memory_reservation = var.consumer_task_quota_memory_reservation
   alert_notification_email               = "devnull@infrahouse.com"
   enable_cloudwatch_logs                 = var.enable_cloudwatch_logs
   enable_vector_agent                    = var.enable_vector_agent

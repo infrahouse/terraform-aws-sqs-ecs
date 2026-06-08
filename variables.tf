@@ -180,9 +180,8 @@ variable "consumer_task_quota_memory_reservation" {
   default     = null
 
   validation {
-    condition = (
-      var.consumer_task_quota_memory_reservation == null
-      || var.consumer_task_quota_memory_reservation > 0
+    condition = var.consumer_task_quota_memory_reservation == null ? true : (
+      var.consumer_task_quota_memory_reservation > 0
     )
     error_message = "consumer_task_quota_memory_reservation must be null or greater than 0."
   }

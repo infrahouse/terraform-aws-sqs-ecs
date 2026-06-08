@@ -23,9 +23,8 @@ resource "aws_sqs_queue" "queue" {
       EOT
     }
     precondition {
-      condition = (
-        var.consumer_task_quota_memory_reservation == null
-        || var.consumer_task_quota_memory_reservation <= var.consumer_task_quota_memory
+      condition = var.consumer_task_quota_memory_reservation == null ? true : (
+        var.consumer_task_quota_memory_reservation <= var.consumer_task_quota_memory
       )
       error_message = <<-EOT
         consumer_task_quota_memory_reservation must be less than or equal to consumer_task_quota_memory.

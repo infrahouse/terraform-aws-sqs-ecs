@@ -17,6 +17,16 @@ variable "enable_vector_agent" {
   default = false
 }
 
+variable "consumer_task_quota_memory" {
+  type    = number
+  default = 128
+}
+
+variable "consumer_task_quota_memory_reservation" {
+  type    = number
+  default = null
+}
+
 variable "vector_aggregator_endpoint" {
   type    = string
   default = null
