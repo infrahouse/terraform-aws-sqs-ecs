@@ -105,13 +105,13 @@ Full documentation is available at [infrahouse.github.io/terraform-aws-sqs-ecs](
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.62, < 7 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.0, < 7 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.62, < 7 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.50.0 |
 
 ## Modules
 
