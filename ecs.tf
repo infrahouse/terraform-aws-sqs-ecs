@@ -13,6 +13,10 @@ module "ecs" {
   container_quota_cpu            = var.consumer_task_quota_cpu
   container_quota_memory         = var.consumer_task_quota_memory
   docker_image                   = var.consumer_docker_image
+  enable_ecr_image_tagging       = var.enable_ecr_image_tagging
+  deployed_image_tag_prefix      = var.deployed_image_tag_prefix
+  ecr_image_tagger_log_level     = var.ecr_image_tagger_log_level
+  alarm_emails                   = [var.alert_notification_email]
   queue_name                     = aws_sqs_queue.queue.name
   service_target_backlog_size    = var.consumer_target_backlog_size
   task_environment_variables     = var.consumer_task_environment_variables

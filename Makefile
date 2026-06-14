@@ -31,7 +31,7 @@ install-hooks:  ## Install repo hooks
 .PHONY: format
 format:  ## Format terraform files
 	terraform fmt -recursive
-	black tests
+	black .
 
 .PHONY: fmt
 fmt: format
@@ -39,7 +39,7 @@ fmt: format
 .PHONY: lint
 lint:  ## Run code style checks
 	@echo "Check code style"
-	black --check tests
+	black --check .
 	terraform fmt -check -recursive
 
 .PHONY: test-math

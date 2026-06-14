@@ -44,6 +44,50 @@ variable "consumer_docker_image" {
   type        = string
 }
 
+variable "enable_ecr_image_tagging" {
+  description = <<-EOT
+    When enabled, a Lambda function tags deployed ECR images with
+    a `deployed-at-<timestamp>` tag each time the consumer ECS service
+    reaches steady state. This protects the actively deployed image
+    from being pruned by the ECR lifecycle policy, so it remains
+    available for redeploys and rollbacks.
+
+    Only affects images pulled from ECR (Docker Hub, public ECR, etc.
+    are silently skipped). When true, consumer_docker_image must be an
+    ECR image URI.
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "deployed_image_tag_prefix" {
+  description = <<-EOT
+    Prefix for the tag applied to ECR images after a successful
+    deployment. The full tag is `<prefix>YYYY-MM-DDTHH-MM-SSZ`.
+    Only used when enable_ecr_image_tagging is true.
+  EOT
+  type        = string
+  default     = "deployed-at-"
+}
+
+variable "ecr_image_tagger_log_level" {
+  description = <<-EOT
+    Log level for the ECR image tagger Lambda function.
+    Set to "DEBUG" to log full EventBridge event payloads for
+    troubleshooting. Only used when enable_ecr_image_tagging is true.
+  EOT
+  type        = string
+  default     = "INFO"
+
+  validation {
+    condition     = contains(["DEBUG", "INFO", "WARNING", "ERROR"], var.ecr_image_tagger_log_level)
+    error_message = <<-EOT
+      ecr_image_tagger_log_level must be one of: DEBUG, INFO, WARNING, ERROR.
+      Got: ${var.ecr_image_tagger_log_level}
+    EOT
+  }
+}
+
 variable "consumer_task_environment_variables" {
   description = "Environment variables passed down to a task."
   type = list(

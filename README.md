@@ -41,6 +41,7 @@ The module is similar to [terraform-aws-sqs-pod](https://github.com/infrahouse/t
 - **Secret injection** - Pass secrets from AWS Secrets Manager to containers
 - **FIFO queue support** - Optional FIFO queue behavior
 - **CloudWatch monitoring** - SQS message age alerting with email notifications
+- **ECR image tagging** - Optionally protect the deployed image from lifecycle pruning (see below)
 
 ## Quick Start
 
@@ -56,6 +57,37 @@ module "sqs_consumer" {
   consumer_on_demand_base_capacity = 0  # Use spot instances
 }
 ```
+
+## ECR image tagging
+
+When the consumer image lives in ECR, the repository's lifecycle policy can
+prune an image that is still actively deployed. If the consumer is not
+redeployed for a while and newer images are pushed, the deployed image may be
+deleted, which breaks recovery (a new EC2 host cannot pull it) and leaves stale,
+vulnerable images around.
+
+Set `enable_ecr_image_tagging = true` to deploy a small Lambda alongside the
+consumer service. Each time the service reaches steady state, the Lambda tags
+the actively deployed image with `deployed-at-<timestamp>`. Pair this with the
+matching retention rule in
+[infrahouse/terraform-aws-ecr](https://github.com/infrahouse/terraform-aws-ecr#lifecycle-policy),
+which preserves `deployed-at-*` tagged images.
+
+```hcl
+module "sqs_consumer" {
+  source  = "registry.infrahouse.com/infrahouse/sqs-ecs/aws"
+  version = "2.1.0"
+
+  service_name             = "my-consumer"
+  consumer_subnet_ids      = var.private_subnet_ids
+  consumer_docker_image    = "123456789012.dkr.ecr.us-west-2.amazonaws.com/my-consumer:latest"
+  alert_notification_email = "alerts@example.com"
+  enable_ecr_image_tagging = true
+}
+```
+
+`consumer_docker_image` must be an ECR image URI when this is enabled. Images
+pulled from Docker Hub or public ECR are silently skipped.
 
 ## Documentation
 
@@ -79,7 +111,7 @@ Full documentation is available at [infrahouse.github.io/terraform-aws-sqs-ecs](
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.41.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.62, < 7 |
 
 ## Modules
 
@@ -134,7 +166,10 @@ Full documentation is available at [infrahouse.github.io/terraform-aws-sqs-ecs](
 | <a name="input_consumer_task_secrets"></a> [consumer\_task\_secrets](#input\_consumer\_task\_secrets) | Secrets to pass to a container. A `name` will be the environment variable. valueFrom is a secret ARN. | <pre>list(<br/>    object(<br/>      {<br/>        name : string<br/>        valueFrom : string<br/>      }<br/>    )<br/>  )</pre> | `[]` | no |
 | <a name="input_consumer_task_volumes_efs"></a> [consumer\_task\_volumes\_efs](#input\_consumer\_task\_volumes\_efs) | Map name->{file\_system\_id, container\_path} of EFS volumes defined in task and available for containers to mount. | <pre>map(<br/>    object(<br/>      {<br/>        file_system_id : string<br/>        container_path : string<br/>      }<br/>    )<br/>  )</pre> | `{}` | no |
 | <a name="input_consumer_task_volumes_local"></a> [consumer\_task\_volumes\_local](#input\_consumer\_task\_volumes\_local) | Map name->{host\_path, container\_path} of local volumes defined in task and available for containers to mount. | <pre>map(<br/>    object(<br/>      {<br/>        host_path : string<br/>        container_path : string<br/>      }<br/>    )<br/>  )</pre> | `{}` | no |
+| <a name="input_deployed_image_tag_prefix"></a> [deployed\_image\_tag\_prefix](#input\_deployed\_image\_tag\_prefix) | Prefix for the tag applied to ECR images after a successful<br/>deployment. The full tag is `<prefix>YYYY-MM-DDTHH-MM-SSZ`.<br/>Only used when enable\_ecr\_image\_tagging is true. | `string` | `"deployed-at-"` | no |
+| <a name="input_ecr_image_tagger_log_level"></a> [ecr\_image\_tagger\_log\_level](#input\_ecr\_image\_tagger\_log\_level) | Log level for the ECR image tagger Lambda function.<br/>Set to "DEBUG" to log full EventBridge event payloads for<br/>troubleshooting. Only used when enable\_ecr\_image\_tagging is true. | `string` | `"INFO"` | no |
 | <a name="input_enable_cloudwatch_logs"></a> [enable\_cloudwatch\_logs](#input\_enable\_cloudwatch\_logs) | Deploy a CloudWatch agent daemon on every EC2 instance in this cluster.<br/>Tails host log files (/var/log/messages, /var/log/dmesg) into CloudWatch log groups.<br/><br/>Does not affect container stdout/stderr, which is always shipped via the Docker<br/>awslogs driver configured on the task definition. | `bool` | `true` | no |
+| <a name="input_enable_ecr_image_tagging"></a> [enable\_ecr\_image\_tagging](#input\_enable\_ecr\_image\_tagging) | When enabled, a Lambda function tags deployed ECR images with<br/>a `deployed-at-<timestamp>` tag each time the consumer ECS service<br/>reaches steady state. This protects the actively deployed image<br/>from being pruned by the ECR lifecycle policy, so it remains<br/>available for redeploys and rollbacks.<br/><br/>Only affects images pulled from ECR (Docker Hub, public ECR, etc.<br/>are silently skipped). When true, consumer\_docker\_image must be an<br/>ECR image URI. | `bool` | `false` | no |
 | <a name="input_enable_vector_agent"></a> [enable\_vector\_agent](#input\_enable\_vector\_agent) | Deploy a Vector Agent daemon on every EC2 instance in this cluster.<br/>Collects container logs (via Docker socket) and host metrics, forwards to a<br/>Vector Aggregator. Requires vector\_aggregator\_endpoint or vector\_agent\_config. | `bool` | `false` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment name string. | `string` | n/a | yes |
 | <a name="input_fifo_queue"></a> [fifo\_queue](#input\_fifo\_queue) | If true, the queue supports FIFO queue behavior. | `bool` | `false` | no |
