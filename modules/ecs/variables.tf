@@ -3,6 +3,44 @@ variable "asg_arn" {
   type        = string
 }
 
+variable "enable_ecr_image_tagging" {
+  description = <<-EOT
+    When enabled, a Lambda function tags deployed ECR images with
+    a ``deployed-at-<timestamp>`` tag each time the ECS service
+    reaches steady state. This lets ECR lifecycle policies retain
+    recently deployed images as rollback candidates.
+
+    Only affects images pulled from ECR (Docker Hub, public ECR,
+    etc. are silently skipped).
+  EOT
+  type        = bool
+}
+
+variable "deployed_image_tag_prefix" {
+  description = <<-EOT
+    Prefix for the tag applied to ECR images after successful
+    deployment. The full tag is ``<prefix>YYYY-MM-DDTHH-MM-SSZ``.
+  EOT
+  type        = string
+}
+
+variable "ecr_image_tagger_log_level" {
+  description = <<-EOT
+    Log level for the ECR image tagger Lambda function.
+    Set to "DEBUG" to log full EventBridge event payloads
+    for troubleshooting.
+  EOT
+  type        = string
+}
+
+variable "alarm_emails" {
+  description = <<-EOT
+    List of email addresses to receive CloudWatch alarm
+    notifications for the ECR image tagger Lambda function.
+  EOT
+  type        = list(string)
+}
+
 variable "enable_cloudwatch_logs" {
   description = "Deploy the CloudWatch agent as a DAEMON ECS service."
   type        = bool
