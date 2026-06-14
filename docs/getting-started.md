@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - Terraform >= 1.0
-- AWS Provider >= 5.62
+- AWS Provider >= 6.0
 - An AWS account with permissions to create SQS, ECS, EC2, IAM, and CloudWatch resources
 - VPC with private subnets for the consumer instances
 - A Docker image for your SQS consumer application
