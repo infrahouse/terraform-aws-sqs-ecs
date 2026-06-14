@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.0] - 2026-06-14
+
+### Features
+
+- Add enable_ecr_image_tagging to protect deployed images from ECR pruning
+- Require aws provider >= 6.0 (drop aws 5.x support)
+- Support consumer memory reservations
+
+### Testing
+
+- Cover consumer memory reservation rendering
+
 ## [2.1.0] - 2026-04-23
 
 ### Features
