@@ -14,6 +14,7 @@ module "test" {
   consumer_instance_type                 = "t3a.small"
   consumer_task_quota_memory             = var.consumer_task_quota_memory
   consumer_task_quota_memory_reservation = var.consumer_task_quota_memory_reservation
+  consumer_extra_runcmd                  = ["true"]
   alert_notification_email               = "devnull@infrahouse.com"
   enable_cloudwatch_logs                 = var.enable_cloudwatch_logs
   enable_vector_agent                    = var.enable_vector_agent

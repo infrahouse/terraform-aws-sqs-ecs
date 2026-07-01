@@ -26,6 +26,7 @@
 | `consumer_root_volume_size` | `30` | Root volume size in GB |
 | `consumer_on_demand_base_capacity` | `null` | Minimum on-demand instances (enables spot if set) |
 | `consumer_extra_files` | `[]` | Additional files to create on host instances |
+| `consumer_extra_runcmd` | `[]` | Additional cloud-init runcmd entries to run on host instances |
 | `consumer_extra_policies` | `{}` | Additional IAM policy ARNs for instance role |
 
 ## Task Configuration

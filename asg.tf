@@ -9,6 +9,7 @@ module "asg" {
   enable_vector_agent          = var.enable_vector_agent
   environment                  = var.environment
   extra_files                  = var.consumer_extra_files
+  extra_runcmd                 = var.consumer_extra_runcmd
   extra_policies               = var.consumer_extra_policies
   instance_type                = var.consumer_instance_type
   keypair_name                 = var.consumer_keypair_name
