@@ -75,6 +75,12 @@ variable "extra_files" {
   default = []
 }
 
+variable "extra_runcmd" {
+  description = "Additional cloud-init runcmd entries to run on host instances."
+  type        = list(string)
+  default     = []
+}
+
 variable "extra_policies" {
   description = "A map of additional policy ARNs to attach to the consumer instance role."
   type        = map(string)

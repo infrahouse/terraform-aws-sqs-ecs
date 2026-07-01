@@ -95,15 +95,17 @@ data "cloudinit_config" "ecs" {
               )
             },
             {
-              "runcmd" : [
-                "fallocate -l ${data.aws_ec2_instance_type.ecs.memory_size * 2}M /swapfile",
-                "chmod 600 /swapfile",
-                "mkswap /swapfile",
-                "swapon /swapfile"
-              ]
+              "runcmd" : concat(
+                [
+                  "fallocate -l ${data.aws_ec2_instance_type.ecs.memory_size * 2}M /swapfile",
+                  "chmod 600 /swapfile",
+                  "mkswap /swapfile",
+                  "swapon /swapfile"
+                ],
+                var.extra_runcmd
+              )
             }
           )
-
         )
       ]
     )
