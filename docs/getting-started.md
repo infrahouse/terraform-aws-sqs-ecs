@@ -53,6 +53,7 @@ Your ECS service will start running consumer containers that poll the SQS queue 
 - **CloudWatch Log Group** - Container log aggregation
 - **CloudWatch Alarm** - SQS message age monitoring
 - **SNS Topic** - Alert notifications
+- **Dead-letter queue and its alarm** - Only with `enable_dead_letter_queue = true`
 
 ## Next Steps
 

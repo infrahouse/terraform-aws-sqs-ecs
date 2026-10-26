@@ -40,6 +40,7 @@ The module is similar to [terraform-aws-sqs-pod](https://github.com/infrahouse/t
 - **EFS volume support** - Mount EFS volumes in consumer containers
 - **Secret injection** - Pass secrets from AWS Secrets Manager to containers
 - **FIFO queue support** - Optional FIFO queue behavior
+- **Dead-letter queue** - Optionally set aside messages consumers can't process, with an alarm (see below)
 - **CloudWatch monitoring** - SQS message age alerting with email notifications
 - **ECR image tagging** - Optionally protect the deployed image from lifecycle pruning (see below)
 
@@ -88,6 +89,35 @@ module "sqs_consumer" {
 
 `consumer_docker_image` must be an ECR image URI when this is enabled. Images
 pulled from Docker Hub or public ECR are silently skipped.
+
+## Dead-letter queue
+
+Without a dead-letter queue, a message that every consumer fails on returns to
+the queue after each visibility timeout and is received again until it expires,
+4 days by default.
+
+Set `enable_dead_letter_queue = true` to create one, named after the queue with
+`-dlq` (`<name>-dlq.fifo` for a FIFO queue). A message received
+`dead_letter_queue_max_receive_count` times (5 by default) without being deleted
+moves there and is kept 14 days, SQS's maximum. An alarm emails
+`alert_notification_email` when the dead-letter queue holds any message.
+
+```hcl
+module "sqs_consumer" {
+  source  = "registry.infrahouse.com/infrahouse/sqs-ecs/aws"
+  version = "3.0.0"
+
+  service_name             = "my-consumer"
+  consumer_subnet_ids      = var.private_subnet_ids
+  consumer_docker_image    = "my-org/my-consumer:latest"
+  alert_notification_email = "alerts@example.com"
+  enable_dead_letter_queue = true
+}
+```
+
+It is off by default, so an upgrade changes nothing for a module that doesn't
+set it. If you already set a redrive policy on `queue_url` yourself, keep the
+option off: the module's redrive policy would replace yours.
 
 ## Documentation
 

@@ -34,7 +34,14 @@ submodules:
 resource quotas, then derives ASG and task count min/max values.
 
 `alerts.tf` creates a CloudWatch alarm + SNS topic for SQS message age
-monitoring.
+monitoring, and, with the dead-letter queue, an alarm on its depth through the
+same topic.
+
+`dead_letter_queue.tf` creates the optional dead-letter queue
+(`enable_dead_letter_queue`, off by default): `<queue>-dlq` (`-dlq.fifo` for a
+FIFO queue), its redrive allow policy admitting only the queue, and the queue's
+redrive policy as a separate `aws_sqs_queue_redrive_policy`, since the
+dead-letter queue takes its name and allow policy from the queue.
 
 ## Common Commands
 
@@ -60,6 +67,14 @@ pytest -xvvs \
 
 Use `--keep-after` to preserve infrastructure after test run (useful for
 debugging).
+
+`tests/test_upgrade.py` applies the latest release from the registry
+(`LATEST_RELEASE`) and plans this checkout over it; the plan must change
+exactly `EXPECTED_CHANGES`. Move both with each release.
+
+`make test-math` runs the offline `terraform test` files in `tests/`: the
+scaling math and `dead_letter_queue.tftest.hcl`, which plans the root module
+against mocked providers.
 
 ## Versioning
 
