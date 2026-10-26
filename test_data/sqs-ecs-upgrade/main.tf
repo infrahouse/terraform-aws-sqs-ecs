@@ -1,0 +1,19 @@
+resource "random_string" "suffix" {
+  length  = 6
+  special = false
+}
+
+# The module in this checkout, with the inputs a user of the latest release
+# passes. tests/test_upgrade.py applies the latest release here first, then
+# plans this source over it.
+module "test" {
+  source                   = "./../../"
+  environment              = "development"
+  service_name             = local.service_name
+  consumer_subnet_ids      = var.consumer_subnet_ids
+  consumer_docker_image    = "httpd"
+  consumer_asg_max_size    = 1
+  consumer_asg_min_size    = 1
+  consumer_instance_type   = "t3a.small"
+  alert_notification_email = "devnull@infrahouse.com"
+}

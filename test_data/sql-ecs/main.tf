@@ -18,4 +18,7 @@ module "test" {
   enable_cloudwatch_logs                 = var.enable_cloudwatch_logs
   enable_vector_agent                    = var.enable_vector_agent
   vector_aggregator_endpoint             = var.vector_aggregator_endpoint
+  fifo_queue                             = var.fifo_queue
+  queue_name                             = var.queue_name
+  enable_dead_letter_queue               = var.enable_dead_letter_queue
 }
