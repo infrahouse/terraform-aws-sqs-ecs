@@ -127,6 +127,27 @@ module "sqs_consumer" {
 }
 ```
 
+## Consumer with a Dead-letter Queue
+
+Move messages consumers fail on three times to `order-processor-queue-dlq`,
+and get an email when one arrives:
+
+```hcl
+module "sqs_consumer" {
+  source  = "registry.infrahouse.com/infrahouse/sqs-ecs/aws"
+  version = "3.0.0"
+
+  service_name             = "order-processor"
+  queue_name               = "order-processor-queue"
+  consumer_subnet_ids      = var.private_subnet_ids
+  consumer_docker_image    = "my-org/order-processor:latest"
+  alert_notification_email = "ops@example.com"
+
+  enable_dead_letter_queue            = true
+  dead_letter_queue_max_receive_count = 3
+}
+```
+
 ## Custom Docker Command
 
 Override the container's default command:

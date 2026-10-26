@@ -11,8 +11,34 @@ This module creates an SQS queue and an ECS service backed by EC2 instances to p
 ### SQS Queue
 
 The module creates an SQS queue with server-side encryption enabled.
-The queue supports both standard and FIFO modes. A dead-letter queue
-is not created by default but can be configured externally.
+The queue supports both standard and FIFO modes.
+
+### Dead-letter Queue
+
+With `enable_dead_letter_queue = true`, the module creates a second queue,
+`<queue>-dlq` (`<queue>-dlq.fifo` for a FIFO queue, since SQS requires a FIFO
+queue's dead-letter queue to be FIFO too), encrypted as the queue is:
+
+- The queue's redrive policy (`aws_sqs_queue_redrive_policy`) moves a message
+  there when consumers have received it `dead_letter_queue_max_receive_count`
+  times (5 by default) without deleting it. SQS moves it on the receive after
+  that.
+- The dead-letter queue's redrive allow policy admits only the module's queue.
+- It keeps messages 14 days, SQS's maximum. A standard queue's message keeps
+  its original enqueue time when it moves, so it has at least 10 days there
+  after the queue's 4.
+- The CloudWatch alarm `<dead-letter queue>-depth-alarm` emails
+  `alert_notification_email`, through the message-age alarm's SNS topic, when
+  the dead-letter queue holds any message
+  (`ApproximateNumberOfMessagesVisible > 0` over 5 minutes). Without data it
+  keeps its state: SQS stops publishing an idle queue's metrics.
+
+On a FIFO queue, a message that moves to the dead-letter queue leaves its
+message group, and the group's later messages are processed without it. Leave
+the option off if they must never be.
+
+By default there is no dead-letter queue: a message that consumers keep failing
+on returns to the queue after each visibility timeout until it expires.
 
 ### ECS Service
 

@@ -66,6 +66,29 @@
   `consumer_instance_type`.
 - Consumer application is crashing. Check CloudWatch logs.
 
+### Dead-letter queue alarm
+
+**Symptoms:** The `<queue>-dlq-depth-alarm` (or `<queue>-dlq.fifo-depth-alarm`)
+alarm fires.
+
+**Cause:** Consumers received a message `dead_letter_queue_max_receive_count`
+times without deleting it, and SQS moved it to the dead-letter queue. It stays
+there 14 days.
+
+**What to do:**
+
+- Read the messages in the dead-letter queue (the `dead_letter_queue_url`
+  output) and the consumer's logs from when they failed.
+- If consumers were slow rather than failing, a message may have come back
+  each time its visibility timeout ran out while it was still being processed.
+  Have the consumer extend it (`sqs:ChangeMessageVisibility`, which its task
+  role has) or raise `dead_letter_queue_max_receive_count`.
+- Once fixed, move the messages back to the queue with the SQS console's
+  dead-letter queue redrive, or
+  `aws sqs start-message-move-task --source-arn <dead_letter_queue_arn>`,
+  which returns them to the queue they came from. The alarm returns to OK
+  once the dead-letter queue is empty.
+
 ## Checking Logs
 
 Consumer container logs are sent to CloudWatch Logs. Find the log

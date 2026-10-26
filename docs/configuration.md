@@ -15,6 +15,19 @@
 |----------|---------|-------------|
 | `queue_name` | `null` | Name of the SQS queue. If null, AWS generates a name |
 | `fifo_queue` | `false` | Enable FIFO queue behavior |
+| `enable_dead_letter_queue` | `false` | Create a dead-letter queue, `<queue>-dlq`, and an alarm on its depth |
+| `dead_letter_queue_max_receive_count` | `5` | Receives without a delete before a message moves there (1 to 1000) |
+
+With `enable_dead_letter_queue = true`, the dead-letter queue is `<queue>-dlq`,
+or `<queue>-dlq.fifo` for a FIFO queue. It is encrypted as the queue is and
+keeps messages 14 days, SQS's maximum. Its redrive allow policy admits only the
+module's queue. The outputs `dead_letter_queue_name`, `dead_letter_queue_url`
+and `dead_letter_queue_arn` are null without it.
+
+Leave it off if you set a redrive policy on `queue_url` yourself: the module's
+`aws_sqs_queue_redrive_policy` would replace yours. The dead-letter queue's
+name must fit SQS's 80 characters, so `queue_name` can be at most 76
+characters, `.fifo` included.
 
 ## Instance Configuration
 
