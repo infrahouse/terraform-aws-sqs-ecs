@@ -31,3 +31,18 @@ variable "vector_aggregator_endpoint" {
   type    = string
   default = null
 }
+
+variable "fifo_queue" {
+  type    = bool
+  default = false
+}
+
+variable "queue_name" {
+  type    = string
+  default = null
+}
+
+variable "enable_dead_letter_queue" {
+  type    = bool
+  default = false
+}

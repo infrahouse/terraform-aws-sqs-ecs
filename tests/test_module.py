@@ -47,6 +47,7 @@ def test_module(
     test_role_arn,
     keep_after,
     aws_region,
+    boto3_session,
     cleanup_ecs_task_definitions,
     aws_provider_version,
     daemon_mode,
@@ -59,6 +60,9 @@ def test_module(
       aggregator endpoint is supplied; the daemon container will fail to
       connect, but the Terraform apply still succeeds, which is what this
       test validates.
+
+    Both leave ``enable_dead_letter_queue`` off, its default: no dead-letter
+    queue, no redrive policy on the queue and no depth alarm.
     """
     enable_cloudwatch_logs, enable_vector_agent = daemon_mode
     expected_memory_reservation = None if enable_vector_agent else 128
@@ -143,3 +147,26 @@ def test_module(
                 container_definition["memoryReservation"] == expected_memory_reservation
             )
         cleanup_ecs_task_definitions(tf_output["service_name"]["value"])
+
+        # Without the dead-letter queue. Terraform leaves a root output whose
+        # value is null out of `terraform output`, hence get().
+        for output in [
+            "dead_letter_queue_name",
+            "dead_letter_queue_url",
+            "dead_letter_queue_arn",
+        ]:
+            assert tf_output.get(output, {}).get("value") is None, output
+
+        sqs = boto3_session.client("sqs", region_name=aws_region)
+        queue_attributes = sqs.get_queue_attributes(
+            QueueUrl=tf_output["queue_url"]["value"], AttributeNames=["All"]
+        )["Attributes"]
+        assert "RedrivePolicy" not in queue_attributes
+
+        # The message-age alarm is the queue's only alarm.
+        queue_name = tf_output["queue_name"]["value"]
+        cloudwatch = boto3_session.client("cloudwatch", region_name=aws_region)
+        alarms = cloudwatch.describe_alarms(AlarmNamePrefix=queue_name)["MetricAlarms"]
+        assert [alarm["AlarmName"] for alarm in alarms] == [
+            f"{queue_name}-message-age-alarm"
+        ]
