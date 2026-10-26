@@ -111,7 +111,7 @@ Full documentation is available at [infrahouse.github.io/terraform-aws-sqs-ecs](
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.50.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.70.0 |
 
 ## Modules
 
@@ -126,10 +126,13 @@ Full documentation is available at [infrahouse.github.io/terraform-aws-sqs-ecs](
 | Name | Type |
 |------|------|
 | [aws_cloudwatch_dashboard.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_dashboard) | resource |
+| [aws_cloudwatch_metric_alarm.dead_letter_queue_depth](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
 | [aws_cloudwatch_metric_alarm.sqs_age_alarm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
 | [aws_sns_topic.sqs_alarms](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic) | resource |
 | [aws_sns_topic_subscription.email_subscription](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription) | resource |
+| [aws_sqs_queue.dead_letter](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue) | resource |
 | [aws_sqs_queue.queue](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue) | resource |
+| [aws_sqs_queue_redrive_policy.queue](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue_redrive_policy) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_ec2_instance_type.consumer](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ec2_instance_type) | data source |
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
@@ -167,9 +170,11 @@ Full documentation is available at [infrahouse.github.io/terraform-aws-sqs-ecs](
 | <a name="input_consumer_task_secrets"></a> [consumer\_task\_secrets](#input\_consumer\_task\_secrets) | Secrets to pass to a container. A `name` will be the environment variable. valueFrom is a secret ARN. | <pre>list(<br/>    object(<br/>      {<br/>        name : string<br/>        valueFrom : string<br/>      }<br/>    )<br/>  )</pre> | `[]` | no |
 | <a name="input_consumer_task_volumes_efs"></a> [consumer\_task\_volumes\_efs](#input\_consumer\_task\_volumes\_efs) | Map name->{file\_system\_id, container\_path} of EFS volumes defined in task and available for containers to mount. | <pre>map(<br/>    object(<br/>      {<br/>        file_system_id : string<br/>        container_path : string<br/>      }<br/>    )<br/>  )</pre> | `{}` | no |
 | <a name="input_consumer_task_volumes_local"></a> [consumer\_task\_volumes\_local](#input\_consumer\_task\_volumes\_local) | Map name->{host\_path, container\_path} of local volumes defined in task and available for containers to mount. | <pre>map(<br/>    object(<br/>      {<br/>        host_path : string<br/>        container_path : string<br/>      }<br/>    )<br/>  )</pre> | `{}` | no |
+| <a name="input_dead_letter_queue_max_receive_count"></a> [dead\_letter\_queue\_max\_receive\_count](#input\_dead\_letter\_queue\_max\_receive\_count) | How many times consumers may receive a message without deleting it before SQS moves it to<br/>the dead-letter queue. Only used when enable\_dead\_letter\_queue is true. | `number` | `5` | no |
 | <a name="input_deployed_image_tag_prefix"></a> [deployed\_image\_tag\_prefix](#input\_deployed\_image\_tag\_prefix) | Prefix for the tag applied to ECR images after a successful<br/>deployment. The full tag is `<prefix>YYYY-MM-DDTHH-MM-SSZ`.<br/>Only used when enable\_ecr\_image\_tagging is true. | `string` | `"deployed-at-"` | no |
 | <a name="input_ecr_image_tagger_log_level"></a> [ecr\_image\_tagger\_log\_level](#input\_ecr\_image\_tagger\_log\_level) | Log level for the ECR image tagger Lambda function.<br/>Set to "DEBUG" to log full EventBridge event payloads for<br/>troubleshooting. Only used when enable\_ecr\_image\_tagging is true. | `string` | `"INFO"` | no |
 | <a name="input_enable_cloudwatch_logs"></a> [enable\_cloudwatch\_logs](#input\_enable\_cloudwatch\_logs) | Deploy a CloudWatch agent daemon on every EC2 instance in this cluster.<br/>Tails host log files (/var/log/messages, /var/log/dmesg) into CloudWatch log groups.<br/><br/>Does not affect container stdout/stderr, which is always shipped via the Docker<br/>awslogs driver configured on the task definition. | `bool` | `true` | no |
+| <a name="input_enable_dead_letter_queue"></a> [enable\_dead\_letter\_queue](#input\_enable\_dead\_letter\_queue) | Create a dead-letter queue for the queue, named after it with "-dlq" (before ".fifo" on a<br/>FIFO queue), and an alarm on its depth, emailed to alert\_notification\_email. A message<br/>received dead\_letter\_queue\_max\_receive\_count times without being deleted moves there and is<br/>kept 14 days. Leave it off if you set a redrive policy on queue\_url yourself: the module's<br/>would replace it. | `bool` | `false` | no |
 | <a name="input_enable_ecr_image_tagging"></a> [enable\_ecr\_image\_tagging](#input\_enable\_ecr\_image\_tagging) | When enabled, a Lambda function tags deployed ECR images with<br/>a `deployed-at-<timestamp>` tag each time the consumer ECS service<br/>reaches steady state. This protects the actively deployed image<br/>from being pruned by the ECR lifecycle policy, so it remains<br/>available for redeploys and rollbacks.<br/><br/>Only affects images pulled from ECR (Docker Hub, public ECR, etc.<br/>are silently skipped). When true, consumer\_docker\_image must be an<br/>ECR image URI. | `bool` | `false` | no |
 | <a name="input_enable_vector_agent"></a> [enable\_vector\_agent](#input\_enable\_vector\_agent) | Deploy a Vector Agent daemon on every EC2 instance in this cluster.<br/>Collects container logs (via Docker socket) and host metrics, forwards to a<br/>Vector Aggregator. Requires vector\_aggregator\_endpoint or vector\_agent\_config. | `bool` | `false` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment name string. | `string` | n/a | yes |
@@ -187,6 +192,9 @@ Full documentation is available at [infrahouse.github.io/terraform-aws-sqs-ecs](
 
 | Name | Description |
 |------|-------------|
+| <a name="output_dead_letter_queue_arn"></a> [dead\_letter\_queue\_arn](#output\_dead\_letter\_queue\_arn) | Dead-letter queue ARN, or null when enable\_dead\_letter\_queue is false |
+| <a name="output_dead_letter_queue_name"></a> [dead\_letter\_queue\_name](#output\_dead\_letter\_queue\_name) | Dead-letter queue name, or null when enable\_dead\_letter\_queue is false |
+| <a name="output_dead_letter_queue_url"></a> [dead\_letter\_queue\_url](#output\_dead\_letter\_queue\_url) | Dead-letter queue URL, or null when enable\_dead\_letter\_queue is false |
 | <a name="output_queue_arn"></a> [queue\_arn](#output\_queue\_arn) | SQS Queue ARN |
 | <a name="output_queue_name"></a> [queue\_name](#output\_queue\_name) | SQS Queue name |
 | <a name="output_queue_url"></a> [queue\_url](#output\_queue\_url) | SQS Queue URL |
