@@ -17,7 +17,9 @@ module "ecs" {
   deployed_image_tag_prefix      = var.deployed_image_tag_prefix
   ecr_image_tagger_log_level     = var.ecr_image_tagger_log_level
   alarm_emails                   = [var.alert_notification_email]
+  queue_arn                      = aws_sqs_queue.queue.arn
   queue_name                     = aws_sqs_queue.queue.name
+  queue_url                      = aws_sqs_queue.queue.id
   service_target_backlog_size    = var.consumer_target_backlog_size
   task_environment_variables     = var.consumer_task_environment_variables
   task_execution_extra_policies  = var.consumer_task_execution_extra_policies

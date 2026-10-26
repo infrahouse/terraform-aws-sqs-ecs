@@ -33,7 +33,7 @@ resource "aws_ecs_task_definition" "consumer" {
               },
               {
                 name : "SQS_ECS_QUEUE_URL"
-                value : data.aws_sqs_queue.current.url
+                value : var.queue_url
               }
             ],
             var.task_environment_variables

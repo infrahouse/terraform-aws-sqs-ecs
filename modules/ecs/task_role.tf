@@ -40,7 +40,7 @@ data "aws_iam_policy_document" "task_role_permissions" {
       "sqs:ReceiveMessage",
     ]
     resources = [
-      data.aws_sqs_queue.current.arn
+      var.queue_arn
     ]
   }
 }

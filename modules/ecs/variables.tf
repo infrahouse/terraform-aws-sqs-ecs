@@ -133,8 +133,20 @@ variable "environment" {
   type        = string
 }
 
+# The queue's ARN and URL come from the root's queue, not from a lookup by queue_name: Terraform reads a data source
+# whose name is known at plan time during the plan, before a new queue exists, and the plan fails.
+variable "queue_arn" {
+  description = "SQS queue ARN."
+  type        = string
+}
+
 variable "queue_name" {
   description = "SQS queue name."
+  type        = string
+}
+
+variable "queue_url" {
+  description = "SQS queue URL."
   type        = string
 }
 
