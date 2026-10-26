@@ -15,7 +15,7 @@
 ```hcl
 module "sqs_consumer" {
   source  = "registry.infrahouse.com/infrahouse/sqs-ecs/aws"
-  version = "3.0.0"
+  version = "3.1.0"
 
   service_name            = "order-processor"
   consumer_subnet_ids     = ["subnet-abc123", "subnet-def456"]
