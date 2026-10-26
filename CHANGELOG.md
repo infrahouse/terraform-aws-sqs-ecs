@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.1.0] - 2026-10-26
+
+### Documentation
+
+- Describe the dead-letter queue option
+
+### Features
+
+- Add an optional dead-letter queue (IH-65)
+
+### Miscellaneous Tasks
+
+- Require pytest-infrahouse ~= 0.25
+- Update instance-profile to 2.0.0: the consumer instances' role also gets ec2:DescribeTags and Amazon Inspector's CIS session actions
+
+### Testing
+
+- Cover the dead-letter queue option and the upgrade from 3.0.0
+- Check the dead-letter queue offline with terraform test
+
 ## [3.0.0] - 2026-06-14
 
 ### Features
