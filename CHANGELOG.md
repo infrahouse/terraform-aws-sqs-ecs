@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [3.1.0] - 2026-10-26
 
+### Bug Fixes
+
+- Create a queue named by queue_name
+
 ### Documentation
 
 - Describe the dead-letter queue option
