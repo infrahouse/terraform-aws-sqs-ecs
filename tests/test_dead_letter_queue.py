@@ -44,6 +44,41 @@ def _receive(sqs: Any, queue_url: str) -> list[dict]:
     ).get("Messages", [])
 
 
+def _write_tfvars(
+    module_dir: str,
+    aws_region: str,
+    subnet_ids: list[str],
+    fifo_queue: bool,
+    queue_name: str | None,
+    enable_dead_letter_queue: bool,
+    test_role_arn: str | None,
+) -> None:
+    """
+    Write the test root's terraform.tfvars.
+
+    :param module_dir: The test root's directory.
+    :param aws_region: The region to deploy in.
+    :param subnet_ids: Subnets for the consumer instances.
+    :param fifo_queue: Whether the queue is FIFO.
+    :param queue_name: The queue's name, or None to let AWS name it.
+    :param enable_dead_letter_queue: The module's enable_dead_letter_queue.
+    :param test_role_arn: The role Terraform assumes, if any.
+    """
+    with open(osp.join(module_dir, "terraform.tfvars"), "w") as fp:
+        fp.write(dedent(f"""
+                    region                   = "{aws_region}"
+                    consumer_subnet_ids      = {json.dumps(subnet_ids)}
+                    fifo_queue               = {str(fifo_queue).lower()}
+                    enable_dead_letter_queue = {str(enable_dead_letter_queue).lower()}
+                    """))
+        if queue_name:
+            fp.write(f'queue_name = "{queue_name}"\n')
+        if test_role_arn:
+            fp.write(dedent(f"""
+                    role_arn        = "{test_role_arn}"
+                    """))
+
+
 @pytest.mark.parametrize("aws_provider_version", ["~> 6.0"], ids=["aws-6"])
 @pytest.mark.parametrize("fifo_queue", [False, True], ids=["standard", "fifo"])
 def test_dead_letter_queue(
@@ -69,6 +104,9 @@ def test_dead_letter_queue(
     deleted must leave the queue on the next receive and land in the
     dead-letter queue, and the depth alarm must watch the dead-letter queue
     through the module's SNS topic.
+
+    Turned off again, the module must leave the queue as it was without the
+    option: no redrive policy, no dead-letter queue, no depth alarm.
     """
     subnet_private_ids = service_network["subnet_private_ids"]["value"]
     queue_name = f"sqs-dlq-test-{token_hex(3)}.fifo" if fifo_queue else None
@@ -107,19 +145,15 @@ def test_dead_letter_queue(
                 }}
                 """))
 
-    with open(osp.join(terraform_module_dir, "terraform.tfvars"), "w") as fp:
-        fp.write(dedent(f"""
-                    region                   = "{aws_region}"
-                    consumer_subnet_ids      = {json.dumps(subnet_private_ids)}
-                    fifo_queue               = {str(fifo_queue).lower()}
-                    enable_dead_letter_queue = true
-                    """))
-        if queue_name:
-            fp.write(f'queue_name = "{queue_name}"\n')
-        if test_role_arn:
-            fp.write(dedent(f"""
-                    role_arn        = "{test_role_arn}"
-                    """))
+    _write_tfvars(
+        terraform_module_dir,
+        aws_region,
+        subnet_private_ids,
+        fifo_queue,
+        queue_name,
+        True,
+        test_role_arn,
+    )
 
     with terraform_apply(
         terraform_module_dir,
@@ -224,3 +258,42 @@ def test_dead_letter_queue(
         )["MetricAlarms"][0]
         assert alarm["AlarmActions"] == age_alarm["AlarmActions"]
         assert alarm["OKActions"] == age_alarm["OKActions"]
+
+        # Turned off again. The destroy after the test removes the rest.
+        _write_tfvars(
+            terraform_module_dir,
+            aws_region,
+            subnet_private_ids,
+            fifo_queue,
+            queue_name,
+            False,
+            test_role_arn,
+        )
+        with terraform_apply(
+            terraform_module_dir,
+            destroy_after=False,
+            json_output=True,
+        ) as tf_output_off:
+            LOG.info("%s", json.dumps(tf_output_off, indent=4))
+            assert tf_output_off["queue_arn"]["value"] == main_arn
+            # Terraform leaves a root output whose value is null out of
+            # `terraform output`, hence get().
+            for output in [
+                "dead_letter_queue_name",
+                "dead_letter_queue_url",
+                "dead_letter_queue_arn",
+            ]:
+                assert tf_output_off.get(output, {}).get("value") is None, output
+
+            main_attributes = sqs.get_queue_attributes(
+                QueueUrl=main_url, AttributeNames=["All"]
+            )["Attributes"]
+            assert not main_attributes.get("RedrivePolicy")
+            with pytest.raises(sqs.exceptions.QueueDoesNotExist):
+                sqs.get_queue_url(QueueName=dlq_name)
+            assert (
+                cloudwatch.describe_alarms(AlarmNames=[f"{dlq_name}-depth-alarm"])[
+                    "MetricAlarms"
+                ]
+                == []
+            )
