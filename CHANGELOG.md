@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Documentation
 
 - Describe the dead-letter queue option
+- Say that turning the dead-letter queue off deletes it
 
 ### Features
 
@@ -21,6 +22,7 @@ All notable changes to this project will be documented in this file.
 
 - Cover the dead-letter queue option and the upgrade from 3.0.0
 - Check the dead-letter queue offline with terraform test
+- Turn the dead-letter queue off again
 
 ## [3.0.0] - 2026-06-14
 
