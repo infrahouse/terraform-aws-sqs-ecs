@@ -117,7 +117,9 @@ module "sqs_consumer" {
 
 It is off by default, so an upgrade changes nothing for a module that doesn't
 set it. If you already set a redrive policy on `queue_url` yourself, keep the
-option off: the module's redrive policy would replace yours.
+option off: the module's redrive policy would replace yours. Turning it off
+again removes the queue's redrive policy and deletes the dead-letter queue, with
+any messages still in it.
 
 ## Documentation
 

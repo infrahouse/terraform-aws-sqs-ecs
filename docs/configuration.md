@@ -25,7 +25,9 @@ module's queue. The outputs `dead_letter_queue_name`, `dead_letter_queue_url`
 and `dead_letter_queue_arn` are null without it.
 
 Leave it off if you set a redrive policy on `queue_url` yourself: the module's
-`aws_sqs_queue_redrive_policy` would replace yours. The dead-letter queue's
+`aws_sqs_queue_redrive_policy` would replace yours. Turning it off again
+removes the queue's redrive policy and deletes the dead-letter queue, with any
+messages still in it: redrive them first. The dead-letter queue's
 name must fit SQS's 80 characters, so `queue_name` can be at most 76
 characters, `.fifo` included.
 
