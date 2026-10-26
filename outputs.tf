@@ -37,3 +37,18 @@ output "queue_arn" {
   description = "SQS Queue ARN"
   value       = aws_sqs_queue.queue.arn
 }
+
+output "dead_letter_queue_name" {
+  description = "Dead-letter queue name, or null when enable_dead_letter_queue is false"
+  value       = one(aws_sqs_queue.dead_letter[*].name)
+}
+
+output "dead_letter_queue_url" {
+  description = "Dead-letter queue URL, or null when enable_dead_letter_queue is false"
+  value       = one(aws_sqs_queue.dead_letter[*].id)
+}
+
+output "dead_letter_queue_arn" {
+  description = "Dead-letter queue ARN, or null when enable_dead_letter_queue is false"
+  value       = one(aws_sqs_queue.dead_letter[*].arn)
+}

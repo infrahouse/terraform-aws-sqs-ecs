@@ -273,6 +273,40 @@ variable "queue_name" {
   default     = null
 }
 
+variable "enable_dead_letter_queue" {
+  description = <<-EOT
+    Create a dead-letter queue for the queue, named after it with "-dlq" (before ".fifo" on a
+    FIFO queue), and an alarm on its depth, emailed to alert_notification_email. A message
+    received dead_letter_queue_max_receive_count times without being deleted moves there and is
+    kept 14 days. Leave it off if you set a redrive policy on queue_url yourself: the module's
+    would replace it.
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "dead_letter_queue_max_receive_count" {
+  description = <<-EOT
+    How many times consumers may receive a message without deleting it before SQS moves it to
+    the dead-letter queue. Only used when enable_dead_letter_queue is true.
+  EOT
+  type        = number
+  default     = 5
+  nullable    = false
+
+  validation {
+    condition = (
+      var.dead_letter_queue_max_receive_count >= 1
+      && var.dead_letter_queue_max_receive_count <= 1000
+      && floor(var.dead_letter_queue_max_receive_count) == var.dead_letter_queue_max_receive_count
+    )
+    error_message = <<-EOT
+      dead_letter_queue_max_receive_count must be a whole number from 1 to 1000, the range SQS accepts.
+      Got: ${var.dead_letter_queue_max_receive_count}
+    EOT
+  }
+}
+
 variable "service_name" {
   description = "A descriptive name for the service that owns the queue."
   type        = string

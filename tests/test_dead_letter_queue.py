@@ -217,7 +217,7 @@ def test_dead_letter_queue(
         assert alarm["Statistic"] == "Maximum"
         assert alarm["ComparisonOperator"] == "GreaterThanThreshold"
         assert alarm["Threshold"] == 0
-        assert alarm["TreatMissingData"] == "notBreaching"
+        assert alarm["TreatMissingData"] == "ignore"
 
         age_alarm = cloudwatch.describe_alarms(
             AlarmNames=[f"{main_name}-message-age-alarm"]
