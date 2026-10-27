@@ -49,7 +49,7 @@ The module is similar to [terraform-aws-sqs-pod](https://github.com/infrahouse/t
 ```hcl
 module "sqs_consumer" {
   source  = "registry.infrahouse.com/infrahouse/sqs-ecs/aws"
-  version = "3.1.0"
+  version = "3.2.0"
 
   service_name                     = "my-consumer"
   consumer_subnet_ids              = var.private_subnet_ids
@@ -77,7 +77,7 @@ which preserves `deployed-at-*` tagged images.
 ```hcl
 module "sqs_consumer" {
   source  = "registry.infrahouse.com/infrahouse/sqs-ecs/aws"
-  version = "3.1.0"
+  version = "3.2.0"
 
   service_name             = "my-consumer"
   consumer_subnet_ids      = var.private_subnet_ids
@@ -108,7 +108,7 @@ after that, so at least 10 days after the move, since the queue keeps messages
 ```hcl
 module "sqs_consumer" {
   source  = "registry.infrahouse.com/infrahouse/sqs-ecs/aws"
-  version = "3.1.0"
+  version = "3.2.0"
 
   service_name             = "my-consumer"
   consumer_subnet_ids      = var.private_subnet_ids
