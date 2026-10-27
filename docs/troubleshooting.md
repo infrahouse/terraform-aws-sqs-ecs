@@ -72,8 +72,10 @@
 alarm fires.
 
 **Cause:** Consumers received a message `dead_letter_queue_max_receive_count`
-times without deleting it, and SQS moved it to the dead-letter queue. It stays
-there 14 days.
+times without deleting it, and SQS moved it to the dead-letter queue. A
+standard queue's message expires 14 days after it was first sent to the queue,
+so at least 10 days after the move; a FIFO queue's, 14 days after the move. The
+alarm's email says which.
 
 **What to do:**
 

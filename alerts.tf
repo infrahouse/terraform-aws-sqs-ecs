@@ -46,8 +46,9 @@ resource "aws_cloudwatch_metric_alarm" "dead_letter_queue_depth" {
   treat_missing_data = "ignore"
   alarm_description = join(" ", [
     "Messages that consumers received ${var.dead_letter_queue_max_receive_count} times without deleting are in",
-    "${aws_sqs_queue.dead_letter[0].name}, kept 14 days. Fix the cause, then redrive them to",
-    "${aws_sqs_queue.queue.name}.",
+    "${aws_sqs_queue.dead_letter[0].name}.",
+    local.dead_letter_queue_expiry,
+    "Fix the cause, then redrive them to ${aws_sqs_queue.queue.name}.",
   ])
   alarm_actions = [aws_sns_topic.sqs_alarms.arn]
   ok_actions    = [aws_sns_topic.sqs_alarms.arn]

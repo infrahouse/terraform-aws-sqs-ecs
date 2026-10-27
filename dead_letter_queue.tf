@@ -10,6 +10,13 @@ locals {
   # from the dead-letter queue that much sooner; the queue keeps messages 4 days, SQS's default, which leaves at
   # least 10 to look into one.
   dead_letter_queue_retention_seconds = 1209600
+
+  # What that means for a message that moves, for the alarm's email.
+  dead_letter_queue_expiry = (
+    var.fifo_queue
+    ? "Each expires 14 days after it moved there."
+    : "Each expires 14 days after it was first sent to the queue, at least 10 days after it moved there."
+  )
 }
 
 resource "aws_sqs_queue" "dead_letter" {

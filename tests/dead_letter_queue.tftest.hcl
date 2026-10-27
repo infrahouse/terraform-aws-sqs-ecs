@@ -143,6 +143,10 @@ run "standard" {
     error_message = "The depth alarm must watch orders-dlq and notify the module's SNS topic."
   }
   assert {
+    condition     = strcontains(aws_cloudwatch_metric_alarm.dead_letter_queue_depth[0].alarm_description, "Each expires 14 days after it was first sent to the queue, at least 10 days after it moved there.")
+    error_message = "A standard queue's alarm must say its messages expire 14 days after they were first sent: ${aws_cloudwatch_metric_alarm.dead_letter_queue_depth[0].alarm_description}"
+  }
+  assert {
     condition = (
       output.dead_letter_queue_name == aws_sqs_queue.dead_letter[0].name
       && output.dead_letter_queue_url == aws_sqs_queue.dead_letter[0].id
@@ -182,6 +186,10 @@ run "fifo" {
   assert {
     condition     = jsondecode(aws_sqs_queue_redrive_policy.queue[0].redrive_policy).maxReceiveCount == 3
     error_message = "maxReceiveCount must follow dead_letter_queue_max_receive_count."
+  }
+  assert {
+    condition     = strcontains(aws_cloudwatch_metric_alarm.dead_letter_queue_depth[0].alarm_description, "Each expires 14 days after it moved there.")
+    error_message = "A FIFO queue's alarm must say its messages expire 14 days after the move: ${aws_cloudwatch_metric_alarm.dead_letter_queue_depth[0].alarm_description}"
   }
 }
 

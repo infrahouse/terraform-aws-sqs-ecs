@@ -20,8 +20,10 @@
 
 With `enable_dead_letter_queue = true`, the dead-letter queue is `<queue>-dlq`,
 or `<queue>-dlq.fifo` for a FIFO queue. It is encrypted as the queue is and
-keeps messages 14 days, SQS's maximum. Its redrive allow policy admits only the
-module's queue. The outputs `dead_letter_queue_name`, `dead_letter_queue_url`
+keeps messages 14 days, SQS's maximum: on a standard queue, 14 days from when a
+message was first sent to the queue, so at least 10 after it moves; on a FIFO
+queue, 14 days from the move. Its redrive allow policy admits only the module's
+queue. The outputs `dead_letter_queue_name`, `dead_letter_queue_url`
 and `dead_letter_queue_arn` are null without it.
 
 Leave it off if you set a redrive policy on `queue_url` yourself: the module's
