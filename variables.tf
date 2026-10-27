@@ -277,9 +277,10 @@ variable "enable_dead_letter_queue" {
   description = <<-EOT
     Create a dead-letter queue for the queue, named after it with "-dlq" (before ".fifo" on a
     FIFO queue), and an alarm on its depth, emailed to alert_notification_email. A message
-    received dead_letter_queue_max_receive_count times without being deleted moves there and is
-    kept 14 days. Leave it off if you set a redrive policy on queue_url yourself: the module's
-    would replace it.
+    received dead_letter_queue_max_receive_count times without being deleted moves there. It
+    expires 14 days after it was first sent to the queue, so at least 10 days after the move, or
+    on a FIFO queue 14 days after the move. Leave it off if you set a redrive policy on queue_url
+    yourself: the module's would replace it.
   EOT
   type        = bool
   default     = false
