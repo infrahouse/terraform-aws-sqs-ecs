@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [3.1.0] - 2026-10-26
+## [3.1.0] - 2026-10-27
 
 ### Bug Fixes
 
@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 
 - Describe the dead-letter queue option
 - Say that turning the dead-letter queue off deletes it
+- Say how long a moved message stays in the dead-letter queue
 
 ### Features
 
