@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.2.0] - 2026-10-27
+
+### Bug Fixes
+
+- Create a queue named by queue_name
+
+### Documentation
+
+- Describe the dead-letter queue option
+- Update CHANGELOG for 3.1.0
+- Say that turning the dead-letter queue off deletes it
+- Update CHANGELOG for 3.1.0
+- Update CHANGELOG for 3.1.0
+- Say how long a moved message stays in the dead-letter queue
+- Update CHANGELOG for 3.1.0
+
+### Features
+
+- Add an optional dead-letter queue (IH-65)
+
+### Miscellaneous Tasks
+
+- Require pytest-infrahouse ~= 0.25
+- Bump version 3.0.0 → 3.1.0
+
+### Testing
+
+- Cover the dead-letter queue option and the upgrade from 3.0.0
+- Check the dead-letter queue offline with terraform test
+- Turn the dead-letter queue off again
+
 ## [3.1.0] - 2026-10-27
 
 ### Bug Fixes
