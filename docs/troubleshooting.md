@@ -32,6 +32,33 @@
   you've customized it, verify the command works inside your
   container.
 
+### Tasks stopped for memory after an upgrade to Amazon Linux 2023
+
+**Symptoms:** After an upgrade that moved the consumers from Amazon Linux 2 to
+Amazon Linux 2023, tasks stop with `OutOfMemoryError`, or their memory use is
+higher than before.
+
+**Cause:** Amazon Linux 2023 runs cgroup v2, which counts page cache in a
+container's memory; Amazon Linux 2 didn't. A consumer that reads or writes
+files may now come closer to `consumer_task_quota_memory`, its hard limit.
+
+**Fix:** measure the consumer's memory on Amazon Linux 2023 (Container Insights
+or the dashboard) and raise `consumer_task_quota_memory` if needed. Keep a
+container-level hard limit, which the module always sets: on cgroup v2 a
+container doesn't see a task-level limit. To stay on Amazon Linux 2 meanwhile,
+set `consumer_ami_id` (README.md, "The consumers' image: Amazon Linux 2023").
+
+### Host syslog or dmesg missing in CloudWatch
+
+**Symptoms:** The `-syslog` and `-dmesg` log groups get nothing from Amazon
+Linux 2023 instances.
+
+**Possible cause:** Amazon Linux 2023 has no rsyslog, and the module's
+cloud-init installs it at boot from Amazon Linux's repositories in S3. Without
+a route to S3 (a NAT gateway or an S3 gateway endpoint), the install fails and
+`/var/log/messages` never appears. `cloud-init status` on the instance says
+`error`, and `/var/log/cloud-init-output.log` shows the failed install.
+
 ### Messages not being processed
 
 **Symptoms:** Messages accumulate in the queue.

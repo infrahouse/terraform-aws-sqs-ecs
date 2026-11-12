@@ -55,7 +55,7 @@ The task definition includes:
 
 The ASG provides EC2 instances that host ECS tasks. Key features:
 
-- ECS-optimized AMI (latest by default)
+- Amazon Linux 2023 ECS-optimized AMI, the newest by default (`consumer_ami_id` overrides it)
 - Optional spot instance support with configurable on-demand base capacity
 - Scales based on CPU utilization
 
