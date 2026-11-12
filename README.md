@@ -124,6 +124,83 @@ option off: the module's redrive policy would replace yours. Turning it off
 again removes the queue's redrive policy and deletes the dead-letter queue, with
 any messages still in it.
 
+## The consumers' image: Amazon Linux 2023
+
+By default the consumer instances run the newest Amazon Linux 2023
+ECS-optimized image for x86_64 (`al2023-ami-ecs-hvm-*`, owned by Amazon), the
+image [infrahouse/terraform-aws-ecs](https://github.com/infrahouse/terraform-aws-ecs)
+runs. Earlier releases ran Amazon Linux 2, whose ECS-optimized images AWS
+stopped supporting on June 30, 2026
+([AWS](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/al2-to-al2023-ami-transition.html)).
+An upgrade from such a release replaces every consumer instance: the launch
+template's new version rolls them by the autoscaling group's instance refresh.
+
+To keep Amazon Linux 2 for now, set `consumer_ami_id` to its image, found as
+earlier releases found it:
+
+```hcl
+data "aws_ami" "al2_ecs" {
+  most_recent = true
+  owners      = ["591542846629"] # Amazon
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-ecs-hvm-*"]
+  }
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+
+module "sqs_consumer" {
+  source  = "registry.infrahouse.com/infrahouse/sqs-ecs/aws"
+  version = "3.2.0"
+
+  service_name             = "my-consumer"
+  consumer_subnet_ids      = var.private_subnet_ids
+  consumer_docker_image    = "my-org/my-consumer:latest"
+  alert_notification_email = "alerts@example.com"
+  consumer_ami_id          = data.aws_ami.al2_ecs.id
+}
+```
+
+AWS publishes no Amazon Linux 2 ECS-optimized image after June 30, 2026, so
+that lookup finds the last one. The launch template maps the root device by
+the name `consumer_ami_id`'s image gives it.
+
+What changes on Amazon Linux 2023:
+
+- **Memory.** Amazon Linux 2023 runs cgroup v2, which counts page cache in a
+  container's memory: the same consumer may show more memory used than on
+  Amazon Linux 2, in Container Insights and the dashboard, and come closer to
+  its hard limit. AWS recommends benchmarking memory use on Amazon Linux 2023
+  before moving production work, and adjusting task and container limits if
+  needed. AWS also recommends a container-level hard limit (`memory` in the
+  container definition), because on cgroup v2 a container doesn't see a
+  task-level limit: a process that sizes itself from its cgroup's limit, the
+  JVM's heap for one, sees the host's memory instead. This module sets the
+  container-level hard limit, `consumer_task_quota_memory` (128 MiB by
+  default), and no task-level limit, so the container sees its limit;
+  `consumer_task_quota_memory_reservation`, when set, is a soft limit that ECS
+  places tasks by. The module scales on CPU and backlog, not memory, so the
+  higher figure changes no scaling.
+- **Host logs.** Amazon Linux 2023 has no rsyslog, so no `/var/log/messages`,
+  and no `/var/log/dmesg`, the two files the CloudWatch agent daemon ships
+  (`enable_cloudwatch_logs`). The module's cloud-init installs and starts
+  rsyslog, and writes the kernel's boot messages to `/var/log/dmesg` at every
+  boot, as Amazon Linux 2 does. Installing rsyslog needs the instances to reach
+  Amazon Linux's package repositories in S3 at boot, through a NAT gateway or
+  an S3 gateway endpoint.
+- **Instance metadata.** Amazon Linux 2023 images allow two hops to the
+  instance metadata, which lets a task's container (in bridge mode, one hop
+  further than the host) get the instance role's credentials. The launch
+  template keeps one hop, as Amazon Linux 2 instances had.
+
 ## Documentation
 
 Full documentation is available at [infrahouse.github.io/terraform-aws-sqs-ecs](https://infrahouse.github.io/terraform-aws-sqs-ecs/).
@@ -179,7 +256,7 @@ Full documentation is available at [infrahouse.github.io/terraform-aws-sqs-ecs](
 |------|-------------|------|---------|:--------:|
 | <a name="input_alert_notification_email"></a> [alert\_notification\_email](#input\_alert\_notification\_email) | Email address to receive alert notifications. | `string` | n/a | yes |
 | <a name="input_cloudwatch_agent_image"></a> [cloudwatch\_agent\_image](#input\_cloudwatch\_agent\_image) | CloudWatch agent container image. | `string` | `"amazon/cloudwatch-agent:latest"` | no |
-| <a name="input_consumer_ami_id"></a> [consumer\_ami\_id](#input\_consumer\_ami\_id) | AMI id for EC2 instances. By default, latest ECS optimized image. | `string` | `null` | no |
+| <a name="input_consumer_ami_id"></a> [consumer\_ami\_id](#input\_consumer\_ami\_id) | AMI id for the consumer EC2 instances. By default, the newest Amazon Linux 2023<br/>ECS-optimized image for x86\_64 (al2023-ami-ecs-hvm-*, owned by Amazon). Set it to<br/>keep Amazon Linux 2 for now, or to run another image; the launch template maps the<br/>root device by the name this image gives it. | `string` | `null` | no |
 | <a name="input_consumer_asg_max_size"></a> [consumer\_asg\_max\_size](#input\_consumer\_asg\_max\_size) | Minimum number of instances in ASG. By default, calculated from var.consumer\_task\_max\_count. | `number` | `null` | no |
 | <a name="input_consumer_asg_min_size"></a> [consumer\_asg\_min\_size](#input\_consumer\_asg\_min\_size) | Minimum number of instances in ASG. By default, the number of subnets. | `number` | `null` | no |
 | <a name="input_consumer_docker_image"></a> [consumer\_docker\_image](#input\_consumer\_docker\_image) | A container image that will run the consumer application. | `string` | n/a | yes |

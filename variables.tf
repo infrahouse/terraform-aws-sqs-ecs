@@ -10,7 +10,12 @@ variable "log_retention_days" {
 }
 
 variable "consumer_ami_id" {
-  description = "AMI id for EC2 instances. By default, latest ECS optimized image."
+  description = <<-EOT
+    AMI id for the consumer EC2 instances. By default, the newest Amazon Linux 2023
+    ECS-optimized image for x86_64 (al2023-ami-ecs-hvm-*, owned by Amazon). Set it to
+    keep Amazon Linux 2 for now, or to run another image; the launch template maps the
+    root device by the name this image gives it.
+  EOT
   type        = string
   default     = null
 }

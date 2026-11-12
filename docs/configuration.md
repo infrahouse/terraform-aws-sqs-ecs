@@ -38,12 +38,19 @@ characters, `.fifo` included.
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `consumer_instance_type` | `t3a.small` | EC2 instance type for consumer hosts |
-| `consumer_ami_id` | `null` | AMI ID. Defaults to latest ECS-optimized image |
+| `consumer_ami_id` | `null` | AMI ID. Defaults to the newest Amazon Linux 2023 ECS-optimized image (x86_64) |
 | `consumer_keypair_name` | `null` | SSH key pair name for instances |
 | `consumer_root_volume_size` | `30` | Root volume size in GB |
 | `consumer_on_demand_base_capacity` | `null` | Minimum on-demand instances (enables spot if set) |
 | `consumer_extra_files` | `[]` | Additional files to create on host instances |
 | `consumer_extra_policies` | `{}` | Additional IAM policy ARNs for instance role |
+
+The consumers run Amazon Linux 2023 by default. To keep Amazon Linux 2 for now,
+set `consumer_ami_id` to its image; the launch template maps the root device by
+the name that image gives it. The README's section "The consumers' image: Amazon
+Linux 2023" shows how, and what changes on 2023: memory reported with page cache
+(cgroup v2), rsyslog installed at boot for the host logs the CloudWatch agent
+ships, and one hop to the instance metadata.
 
 ## Task Configuration
 
