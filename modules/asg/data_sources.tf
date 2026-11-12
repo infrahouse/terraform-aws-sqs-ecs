@@ -125,9 +125,8 @@ data "cloudinit_config" "ecs" {
                   "mkswap /swapfile",
                   "swapon /swapfile"
                 ],
-                # Here rather than in cloud-init's packages, which Amazon Linux
-                # 2023 installs in a later stage than runcmd. yum is dnf on 2023,
-                # and Amazon Linux 2 has rsyslog already.
+                # Installed and started in one script, in that order. yum is dnf
+                # on 2023, and Amazon Linux 2 has rsyslog already.
                 var.enable_cloudwatch_logs ? [
                   "yum install -y rsyslog",
                   "systemctl enable --now rsyslog"
