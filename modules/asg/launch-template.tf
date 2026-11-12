@@ -30,7 +30,7 @@ resource "aws_launch_template" "consumer" {
     # One hop: the host reaches the instance metadata, a task's container (in
     # bridge mode, a hop further) doesn't, so no task gets the instance role's
     # credentials. Amazon Linux 2023 images default to two hops; Amazon Linux 2
-    # images took the account's default, one.
+    # images to EC2's default, one.
     http_put_response_hop_limit = 1
     instance_metadata_tags      = "enabled"
   }
