@@ -24,6 +24,24 @@ READY_TIMEOUT = 15 * 60
 T = TypeVar("T")
 
 
+def _ecs_client(aws_region: str, test_role_arn: str | None) -> Any:
+    session = boto3.Session(region_name=aws_region)
+    if not test_role_arn:
+        return session.client("ecs")
+
+    credentials = session.client("sts").assume_role(
+        RoleArn=test_role_arn,
+        RoleSessionName="sqs-ecs-test-inspect",
+    )["Credentials"]
+    return boto3.client(
+        "ecs",
+        region_name=aws_region,
+        aws_access_key_id=credentials["AccessKeyId"],
+        aws_secret_access_key=credentials["SecretAccessKey"],
+        aws_session_token=credentials["SessionToken"],
+    )
+
+
 def _wait_for(check: Callable[[], T], what: str, timeout: int = READY_TIMEOUT) -> T:
     """
     Call a check every 15 seconds until it returns something truthy.
