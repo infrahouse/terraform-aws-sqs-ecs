@@ -169,9 +169,13 @@ module "sqs_consumer" {
 }
 ```
 
-AWS publishes no Amazon Linux 2 ECS-optimized image after June 30, 2026, so
-that lookup finds the last one. The launch template maps the root device by
-the name `consumer_ami_id`'s image gives it.
+That lookup follows AWS's newest Amazon Linux 2 ECS-optimized build, as earlier
+releases did: each new build AWS publishes is a new launch template version, and
+the instance refresh replaces every consumer instance. To hold one build, set
+`consumer_ami_id` to its AMI id instead. AWS deprecates each ECS-optimized image
+two years after building it; a deprecated image still launches, and the module
+still finds it. The launch template maps the root device by the name
+`consumer_ami_id`'s image gives it.
 
 What changes on Amazon Linux 2023:
 
