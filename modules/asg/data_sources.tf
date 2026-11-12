@@ -36,6 +36,11 @@ data "aws_ami" "ecs" {
 data "aws_ami" "selected" {
   count = var.ami_id == null ? 0 : 1
 
+  # A filtered search leaves deprecated images out, and AWS deprecates every
+  # ECS-optimized image two years after building it. A deprecated image still
+  # launches, so a pinned one must still plan.
+  include_deprecated = true
+
   filter {
     name   = "image-id"
     values = [var.ami_id]
