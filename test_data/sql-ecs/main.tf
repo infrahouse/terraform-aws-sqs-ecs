@@ -8,7 +8,11 @@ module "test" {
   environment                            = "development"
   service_name                           = local.service_name
   consumer_subnet_ids                    = var.consumer_subnet_ids
-  consumer_docker_image                  = "httpd"
+  consumer_docker_image                  = var.run_test_consumer ? local.test_consumer_image : "httpd"
+  consumer_task_commands                 = var.run_test_consumer ? local.test_consumer_command : null
+  consumer_extra_files                   = var.run_test_consumer ? local.test_consumer_files : []
+  consumer_task_volumes_local            = var.run_test_consumer ? local.test_consumer_volumes : {}
+  consumer_ami_id                        = var.consumer_ami_id
   consumer_asg_max_size                  = 1
   consumer_asg_min_size                  = 1
   consumer_instance_type                 = "t3a.small"
