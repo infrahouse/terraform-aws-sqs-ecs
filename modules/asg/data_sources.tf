@@ -6,12 +6,15 @@ data "aws_subnet" "selected" {
   id = var.subnet_ids[0]
 }
 
+# The default image: the newest Amazon Linux 2023 ECS-optimized one, found by
+# the same filters and owner as infrahouse/ecs/aws's, so a service built from
+# both modules runs one build.
 data "aws_ami" "ecs" {
   most_recent = true
 
   filter {
     name   = "name"
-    values = ["amzn2-ami-ecs-hvm-*"]
+    values = ["al2023-ami-ecs-hvm-*"]
   }
 
   filter {
