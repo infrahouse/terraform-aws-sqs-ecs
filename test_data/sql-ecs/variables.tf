@@ -46,3 +46,17 @@ variable "enable_dead_letter_queue" {
   type    = bool
   default = false
 }
+
+variable "run_test_consumer" {
+  description = <<-EOT
+    Run files/consumer.py, which consumes the queue's messages, instead of httpd,
+    which reads nothing. tests/test_dead_letter_queue.py needs its message left alone.
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "consumer_ami_id" {
+  type    = string
+  default = null
+}
