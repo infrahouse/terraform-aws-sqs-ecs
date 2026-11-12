@@ -109,13 +109,30 @@ data "cloudinit_config" "ecs" {
                 var.extra_files
               )
             },
+            # The files the CloudWatch agent ships, /var/log/messages and
+            # /var/log/dmesg. Amazon Linux 2 writes both; Amazon Linux 2023
+            # writes neither: it has no rsyslog, and nothing saves the kernel's
+            # boot messages. bootcmd runs at every boot, as Amazon Linux 2's
+            # dmesg service does.
+            var.enable_cloudwatch_logs ? {
+              bootcmd : ["dmesg > /var/log/dmesg"]
+            } : {},
             {
-              "runcmd" : [
-                "fallocate -l ${data.aws_ec2_instance_type.ecs.memory_size * 2}M /swapfile",
-                "chmod 600 /swapfile",
-                "mkswap /swapfile",
-                "swapon /swapfile"
-              ]
+              "runcmd" : concat(
+                [
+                  "fallocate -l ${data.aws_ec2_instance_type.ecs.memory_size * 2}M /swapfile",
+                  "chmod 600 /swapfile",
+                  "mkswap /swapfile",
+                  "swapon /swapfile"
+                ],
+                # Here rather than in cloud-init's packages, which Amazon Linux
+                # 2023 installs in a later stage than runcmd. yum is dnf on 2023,
+                # and Amazon Linux 2 has rsyslog already.
+                var.enable_cloudwatch_logs ? [
+                  "yum install -y rsyslog",
+                  "systemctl enable --now rsyslog"
+                ] : []
+              )
             }
           )
 
