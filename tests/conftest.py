@@ -1,4 +1,5 @@
 import logging
+from subprocess import PIPE, run
 
 from infrahouse_core.logging import setup_logging
 
@@ -15,3 +16,18 @@ LOG = logging.getLogger(__name__)
 
 
 setup_logging(LOG, debug=True)
+
+
+def terraform(module_dir: str, *args: str) -> str:
+    """
+    Run a terraform command in a root module.
+
+    :param module_dir: The root module's directory.
+    :param args: The command and its arguments, after ``terraform``.
+    :return: The command's stdout.
+    :raise CalledProcessError: If terraform exits with non-zero.
+    """
+    LOG.info("Executing: terraform %s", " ".join(args))
+    return run(
+        ["terraform", *args], cwd=module_dir, stdout=PIPE, check=True, text=True
+    ).stdout

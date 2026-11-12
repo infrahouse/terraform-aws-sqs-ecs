@@ -2,7 +2,6 @@ import json
 import re
 from os import path as osp, remove
 from shutil import rmtree
-from subprocess import PIPE, run
 from textwrap import dedent
 from typing import Any
 
@@ -12,6 +11,7 @@ from pytest_infrahouse import terraform_apply
 from tests.conftest import (
     LOG,
     TERRAFORM_ROOT_DIR,
+    terraform,
 )
 
 # The release a user upgrades from. Move it, and EXPECTED_CHANGES, with each
@@ -35,21 +35,6 @@ EXPECTED_CHANGES = {
         "tags_all",
     },
 }
-
-
-def _terraform(module_dir: str, *args: str) -> str:
-    """
-    Run a terraform command in a root module.
-
-    :param module_dir: The root module's directory.
-    :param args: The command and its arguments, after ``terraform``.
-    :return: The command's stdout.
-    :raise CalledProcessError: If terraform exits with non-zero.
-    """
-    LOG.info("Executing: terraform %s", " ".join(args))
-    return run(
-        ["terraform", *args], cwd=module_dir, stdout=PIPE, check=True, text=True
-    ).stdout
 
 
 def _has_unknown(value: Any) -> bool:
@@ -180,8 +165,8 @@ def test_upgrade_from_latest_release(
             # after the test runs with it too.
             with open(main_tf_path, "w") as fp:
                 fp.write(checkout_main_tf)
-            _terraform(terraform_module_dir, "init", "-input=false", "-no-color")
-            _terraform(
+            terraform(terraform_module_dir, "init", "-input=false", "-no-color")
+            terraform(
                 terraform_module_dir,
                 "plan",
                 "-var-file=terraform.tfvars",
@@ -190,7 +175,7 @@ def test_upgrade_from_latest_release(
                 f"-out={plan_path}",
             )
             plan = json.loads(
-                _terraform(terraform_module_dir, "show", "-json", plan_path)
+                terraform(terraform_module_dir, "show", "-json", plan_path)
             )
 
             changes = {
