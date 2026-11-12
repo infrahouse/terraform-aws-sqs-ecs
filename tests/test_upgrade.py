@@ -16,24 +16,25 @@ from tests.conftest import (
 
 # The release a user upgrades from. Move it, and EXPECTED_CHANGES, with each
 # release.
-LATEST_RELEASE = "3.0.0"
+LATEST_RELEASE = "3.2.0"
 
 # Every resource that planning this checkout over LATEST_RELEASE, with the same
 # inputs, changes, and the attributes it changes. Each is an in-place update;
-# anything else fails the test.
+# anything else fails the test. No version tag moves: this checkout's
+# module_version is still LATEST_RELEASE's, until the release bumps it.
 EXPECTED_CHANGES = {
-    # The release's version in the queue's module_version tag. No redrive
-    # policy: enable_dead_letter_queue is off by default.
-    "module.test.aws_sqs_queue.queue": {"tags", "tags_all"},
-    # instance-profile 2.0.0 (commit 120b30b, on main since 3.0.0) adds
-    # ec2:DescribeTags and Amazon Inspector's CIS session actions to the
-    # instance role's policy...
-    "module.test.module.asg.module.instance-profile.aws_iam_policy.profile": {"policy"},
-    # ...and moves its own module_version tag on the role.
-    "module.test.module.asg.module.instance-profile.aws_iam_role.profile": {
-        "tags",
-        "tags_all",
+    # The default image is Amazon Linux 2023's (both images name their root
+    # device /dev/xvda, so the block device mapping stays); cloud-init installs
+    # rsyslog and writes /var/log/dmesg, which 2023 lacks; the hop limit stays
+    # one; and the template gets a new version.
+    "module.test.module.asg.aws_launch_template.consumer": {
+        "image_id",
+        "latest_version",
+        "metadata_options",
+        "user_data",
     },
+    # The new version, which rolls the instances by the instance refresh.
+    "module.test.module.asg.aws_autoscaling_group.consumer": {"launch_template"},
 }
 
 
@@ -84,9 +85,10 @@ def test_upgrade_from_latest_release(
     Applies LATEST_RELEASE from the registry, then plans this checkout over it
     with the same inputs, as a user's upgrade would.
 
-    The plan must change exactly what EXPECTED_CHANGES lists: with the
-    dead-letter queue off by default, nothing of it, and no redrive policy on
-    the queue.
+    The plan must change exactly what EXPECTED_CHANGES lists: the launch
+    template and the autoscaling group's version of it, which the instance
+    refresh rolls out. With the dead-letter queue off by default, nothing of
+    it, and no redrive policy on the queue.
     """
     subnet_private_ids = service_network["subnet_private_ids"]["value"]
 
