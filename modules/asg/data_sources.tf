@@ -30,6 +30,18 @@ data "aws_ami" "ecs" {
   owners = ["591542846629"] # Amazon
 }
 
+# The image var.ami_id names, read for its root device's name: images name
+# theirs differently (/dev/xvda, /dev/sda1), and a launch template that maps
+# another name adds a volume instead of sizing and encrypting the root one.
+data "aws_ami" "selected" {
+  count = var.ami_id == null ? 0 : 1
+
+  filter {
+    name   = "image-id"
+    values = [var.ami_id]
+  }
+}
+
 data "aws_ec2_instance_type" "ecs" {
   instance_type = var.instance_type
 }

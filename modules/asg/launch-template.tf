@@ -17,7 +17,7 @@ resource "aws_launch_template" "consumer" {
     arn = module.instance-profile.instance_profile_arn
   }
   block_device_mappings {
-    device_name = data.aws_ami.ecs.root_device_name
+    device_name = local.root_device_name
     ebs {
       volume_size           = var.root_volume_size
       delete_on_termination = true
