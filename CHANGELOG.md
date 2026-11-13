@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.0.0] - 2026-11-13
+
+### Bug Fixes
+
+- Map the root device of the image the launch template uses
+- Keep one hop to the instance metadata on Amazon Linux 2023
+- Write the host logs the CloudWatch agent ships on Amazon Linux 2023
+- Find a deprecated consumer_ami_id
+
+### Documentation
+
+- Show the AWS provider's constraint in the README's providers table
+- Describe the consumers on Amazon Linux 2023
+- Say why rsyslog's install is in runcmd, and whose hop default it was
+- Say that the Amazon Linux 2 lookup follows AWS's newest build
+
+### Features
+
+- Run the consumers on Amazon Linux 2023 by default
+
+### Testing
+
+- Run a consumer on Amazon Linux 2023 and check its host
+- Plan a consumer_ami_id whose root device has another name
+- Upgrade from 3.2.0, which changes the launch template
+- Bring back test_module's ECS client helper
+- Plan a deprecated consumer_ami_id
+
 ## [3.2.0] - 2026-10-27
 
 ### Bug Fixes
